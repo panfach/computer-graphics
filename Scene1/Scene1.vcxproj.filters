@@ -23,16 +23,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.vs">
-      <Filter>Исходные файлы</Filter>
-    </None>
-    <None Include="shader.frag">
-      <Filter>Исходные файлы</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Shader.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\lighting.frag">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="shaders\lighting.vs">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="shaders\emission.frag">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="shaders\emission.vs">
+      <Filter>Исходные файлы</Filter>
+    </None>
   </ItemGroup>
 </Project>

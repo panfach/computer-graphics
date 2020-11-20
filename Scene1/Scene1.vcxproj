@@ -23,11 +23,13 @@
     <ClCompile Include="scene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.frag" />
-    <None Include="shader.vs" />
+    <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Shader.h" />
+    <None Include="shaders\emission.frag" />
+    <None Include="shaders\emission.vs" />
+    <None Include="shaders\lighting.frag" />
+    <None Include="shaders\lighting.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

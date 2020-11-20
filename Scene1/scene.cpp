@@ -28,47 +28,47 @@ GLfloat rectangle01[] = {
 };
 
 GLfloat cube01[] = {
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 };
 
 glm::vec3 cubePositions[] = {
@@ -84,12 +84,16 @@ glm::vec3 cubePositions[] = {
   glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
+glm::vec3 lightPosition(1.2f, 1.0f, 2.0f);
+
 GLuint indices[] = { 
 	0, 1, 3, 
 	1, 2, 3
 };
 
 bool firstMouseCallback = true;
+
+float ambientStrength = 0.1f;
 
 // Delta time
 GLfloat deltaTime = 0.0f;
@@ -153,7 +157,8 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 
 	// Shader
-	Shader ourShader("shader.vs", "shader.frag");
+	Shader lightingShader("shaders/lighting.vs", "shaders/lighting.frag");
+	Shader emissionShader("shaders/emission.vs", "shaders/emission.frag");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
@@ -162,7 +167,7 @@ int main() {
 	GLuint VBO, VAO, EBO;
 	glGenBuffers(1, &VBO);
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &EBO);
+	//glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBindVertexArray(VAO);
 
@@ -177,14 +182,24 @@ int main() {
 
 	// -------------------------------------------------------------------------------------------------------------------- //
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GL_FLOAT), (GLvoid*)0);
+	glEnableVertexAttribArray(0); 
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GL_FLOAT), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	//glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	//glEnableVertexAttribArray(2);
+	glBindVertexArray(0);
+
+	GLuint lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 
 	// Texture 1
@@ -196,7 +211,7 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	int texWidth, texHeight;
-	unsigned char* image = SOIL_load_image("wood.jpg", &texWidth, &texHeight, 0, SOIL_LOAD_RGB);
+	unsigned char* image = SOIL_load_image("textures/wood.jpg", &texWidth, &texHeight, 0, SOIL_LOAD_RGB);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	// Отвязываем
@@ -212,12 +227,15 @@ int main() {
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	image = SOIL_load_image("cat.png", &texWidth, &texHeight, 0, SOIL_LOAD_AUTO);
+	image = SOIL_load_image("textures/cat.png", &texWidth, &texHeight, 0, SOIL_LOAD_AUTO);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	// Отвязываем
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	//GLint lightPositionLoc = glGetUniformLocation(lightingShader._program, "lightPosition");
+	//glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
 
 	glm::mat4 view;
 	glm::mat4 projection;
@@ -234,45 +252,83 @@ int main() {
 		Move();
 		Zoom();
 
-		glClearColor(0.4f, 0.8f, 0.8f, 1.0f);
+		glClearColor(0.025f, 0.05f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		glActiveTexture(GL_TEXTURE0);
+		lightingShader.Use();
+
+		GLint objectColorLoc = glGetUniformLocation(lightingShader._program, "objectColor");
+		GLint lightColorLoc = glGetUniformLocation(lightingShader._program, "lightColor");
+		glUniform3f(objectColorLoc, 0.5f, 0.5f, 0.5f); 
+		glUniform3f(lightColorLoc, 0.9f, 0.9f, 0.9f); 
+
+		GLint lightPositionLoc = glGetUniformLocation(lightingShader._program, "_lightPosition");
+		glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
+
+		/*GLint viewPosLoc = glGetUniformLocation(lightingShader._program, "viewPosition");
+		glUniform3f(viewPosLoc, camera.position.x, camera.position.y, camera.position.z);*/
+		                                         
+
+		/*glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glUniform1i(glGetUniformLocation(ourShader._program, "ourTexture1"), 0);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 		glUniform1i(glGetUniformLocation(ourShader._program, "ourTexture2"), 1);
-		ourShader.Use();
+		ourShader.Use();*/
 		//GLfloat timeValue = glfwGetTime();
 		//GLfloat greenValue = (sin(timeValue) / 2) + 0.5;
 		//GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 		//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
 		// Transformations
-		//glm::mat4 view;
 		view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
-		//glm::mat4 projection;
 		projection = glm::perspective<float>(glm::radians(camera.fov), (float)width / height, 0.1f, 100.0f);
 
-		GLuint modelLoc = glGetUniformLocation(ourShader._program, "model");
-		GLuint viewLoc = glGetUniformLocation(ourShader._program, "view");
-		GLuint projectionLoc = glGetUniformLocation(ourShader._program, "projection");
+		GLuint modelLoc = glGetUniformLocation(lightingShader._program, "model");
+		GLuint viewLoc = glGetUniformLocation(lightingShader._program, "view");
+		GLuint projectionLoc = glGetUniformLocation(lightingShader._program, "projection");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
+		// Object
 		glBindVertexArray(VAO);
-		for (int i = 0; i < 10; i++) {
-			glm::mat4 model;
-			model = glm::translate(model, cubePositions[i]);
-			model = glm::rotate(model, (GLfloat)glfwGetTime() * 1.0f, glm::vec3(-0.5f, 0.2f, 1.0f));
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glm::mat4 model;
+		model = glm::rotate(model, (GLfloat)glfwGetTime() * 2.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
+
+
+
+		emissionShader.Use();
+		/*GLint objectColorLoc = glGetUniformLocation(emissionShader._program, "objectColor");
+		GLint lightColorLoc = glGetUniformLocation(emissionShader._program, "lightColor");
+		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
+		glUniform3f(lightColorLoc, 1.0f, 0.5f, 1.0f);*/
+
+		// Transformations
+		//view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
+		//projection = glm::perspective<float>(glm::radians(camera.fov), (float)width / height, 0.1f, 100.0f);
+
+		modelLoc = glGetUniformLocation(emissionShader._program, "model");
+		viewLoc = glGetUniformLocation(emissionShader._program, "view");
+		projectionLoc = glGetUniformLocation(emissionShader._program, "projection");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+
+		model = glm::mat4();
+		model = glm::translate(model, lightPosition);
+		model = glm::scale(model, glm::vec3(0.2f));
+
+		// "Light"
+		glBindVertexArray(lightVAO);
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
 
 
 
