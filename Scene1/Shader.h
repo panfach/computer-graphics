@@ -6,6 +6,9 @@
 #include <sstream>
 #include <iostream>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Shader {
 public:
@@ -79,6 +82,25 @@ public:
         glDeleteShader(vertex);
         glDeleteShader(fragment);
 	}
+
+    void SetInt(const char* variableName, int value) {
+        GLint loc = glGetUniformLocation(_program, variableName);
+        glUniform1i(loc, value); //////////
+    }
+
+    void SetFloat(const char* variableName, float value) {
+        GLint loc = glGetUniformLocation(_program, variableName);
+        glUniform1f(loc, value);
+    }
+
+    void SetVec3(const char* variableName, glm::vec3 value) {
+        SetVec3(variableName, value.x, value.y, value.z);
+    }
+
+    void SetVec3(const char* variableName, float x, float y, float z) {
+        GLint loc = glGetUniformLocation(_program, variableName);
+        glUniform3f(loc, x, y, z);
+    }
 
     void Use() {
         glUseProgram(_program);
