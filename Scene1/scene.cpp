@@ -11,6 +11,7 @@
 
 #include "Shader.h"
 #include "Camera.h"
+#include "Model.h"
 
 
 GLfloat triangle01[] = {
@@ -135,10 +136,6 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
 	// Window
 	GLFWwindow* window = glfwCreateWindow(1200, 800, "Beautiful scene", nullptr, nullptr);
 	if (window == nullptr) {
@@ -158,6 +155,12 @@ int main() {
 		return -1;
 	}
 
+	//if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	//{
+	//	std::cout << "Failed to initialize GLAD" << std::endl;
+	//	return -1;
+	//}
+
 	// GL settings
 	glEnable(GL_DEPTH_TEST);
 
@@ -166,84 +169,9 @@ int main() {
 	Shader emissionShader("shaders/emission.vs", "shaders/emission.frag");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+	// Loading model
+	Model meshModel("models/CHARACTER_Shrek.obj");
 
-	// Vertex Buffer Object, Vertex Array Object, Element Buffer Object
-	// Initialization
-	GLuint VBO, VAO, EBO;
-	glGenBuffers(1, &VBO);
-	glGenVertexArrays(1, &VAO);
-	//glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBindVertexArray(VAO);
-
-	// -------------------------------------------------------------------------------------------------------------------- //
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube01), cube01, GL_STATIC_DRAW);
-	// object 2
-	// object 3
-	// object ...
-
-
-
-
-	// -------------------------------------------------------------------------------------------------------------------- //
-
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*)0);
-	glEnableVertexAttribArray(0); 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*)(6 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
-	glBindVertexArray(0);
-
-	GLuint lightVAO;
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	glBindVertexArray(0);
-
-	// Texture 1
-	GLuint texture1;
-	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	int texWidth, texHeight;
-	unsigned char* image = SOIL_load_image("textures/container2.png", &texWidth, &texHeight, 0, SOIL_LOAD_RGB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	// Отвязываем
-	SOIL_free_image_data(image);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Texture 2
-	GLuint texture2;
-	glGenTextures(1, &texture2);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	image = SOIL_load_image("textures/container2_specular.png", &texWidth, &texHeight, 0, SOIL_LOAD_RGB);
-	for (int i = 0; i < 64; i++) std::cout << "2: " << (int)image[i] << std::endl;
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	// Отвязываем
-	SOIL_free_image_data(image);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	lightingShader.Use();
-	lightingShader.SetInt("material.diffuse", texture1);
-	lightingShader.SetInt("material.specular", texture2);
-
-	//GLint lightPositionLoc = glGetUniformLocation(lightingShader._program, "lightPosition");
-	//glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
 
 	glm::mat4 view;
 	glm::mat4 projection;
@@ -276,7 +204,7 @@ int main() {
 
 		lightingShader.Use();
 
-		lightingShader.SetVec3("material.ambient", 0.2f, 0.2f, 0.4f);
+		/*lightingShader.SetVec3("material.ambient", 0.2f, 0.2f, 0.4f);
 		lightingShader.SetInt("material.diffuse", texture1);
 		lightingShader.SetInt("material.specular", texture2);
 		lightingShader.SetFloat("material.shininess", 32.0f);
@@ -290,17 +218,24 @@ int main() {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture1); 
 		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, texture2);
-		                                         
-		/*glUniform1i(glGetUniformLocation(ourShader._program, "ourTexture1"), 0);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
-		glUniform1i(glGetUniformLocation(ourShader._program, "ourTexture2"), 1);
-		ourShader.Use();*/
-		//GLfloat timeValue = glfwGetTime();
-		//GLfloat greenValue = (sin(timeValue) / 2) + 0.5;
-		//GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-		//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		glBindTexture(GL_TEXTURE_2D, texture2);*/
+
+		//lightingShader.SetInt("material.diffuse", texture1);
+		//lightingShader.SetInt("material.specular", texture2);
+
+		glm::vec3 diffuse = glm::vec3(0.6f, 0.3f, 0.3f);
+		glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
+
+		lightingShader.SetVec3("material.diffuse", diffuse);
+		lightingShader.SetVec3("material.specular", specular);
+		lightingShader.SetFloat("material.shininess", 32.0f);
+
+		lightingShader.SetVec3("light.ambient", lightAmbient);
+		lightingShader.SetVec3("light.diffuse", lightDiffuse);
+		lightingShader.SetVec3("light.specular", lightSpecular);
+
+		lightingShader.SetVec3("_lightPosition", lightPosition);
+		                                       
 
 		// Transformations
 		view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
@@ -313,16 +248,16 @@ int main() {
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		// Object
-		glBindVertexArray(VAO);
+		//glBindVertexArray(VAO);
 		glm::mat4 model;
-		model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
+		meshModel.Draw(lightingShader);
+		//glBindVertexArray(0);
 
 
 
-		emissionShader.Use();
+		/*emissionShader.Use();
 		emissionShader.SetVec3("lightColor", lightDiffuse);
 		modelLoc = glGetUniformLocation(emissionShader._program, "model");
 		viewLoc = glGetUniformLocation(emissionShader._program, "view");
@@ -337,7 +272,7 @@ int main() {
 		glBindVertexArray(lightVAO);
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
+		glBindVertexArray(0);*/
 
 
 
@@ -358,9 +293,6 @@ int main() {
 		}
 	}
 
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
 
 	glfwTerminate();
 	return 0;
@@ -389,15 +321,15 @@ void MouseButtonCallback(GLFWwindow* window, int key, int action, int mode) {
 void MouseCallback(GLFWwindow* window, double xpos, double ypos) {
 
 	if (firstMouseCallback) {
-		lastMouseX = xpos;
-		lastMouseY = ypos;
+		lastMouseX = (GLfloat)xpos;
+		lastMouseY = (GLfloat)ypos;
 		firstMouseCallback = false;
 	}
 
-	GLfloat xoffset = xpos - lastMouseX;
-	GLfloat yoffset = ypos - lastMouseY;
-	lastMouseX = xpos;
-	lastMouseY = ypos;
+	GLfloat xoffset = (GLfloat)xpos - lastMouseX;
+	GLfloat yoffset = (GLfloat)ypos - lastMouseY;
+	lastMouseX = (GLfloat)xpos;
+	lastMouseY = (GLfloat)ypos;
 
 	camera.Rotate(xoffset, yoffset);
 }

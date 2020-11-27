@@ -12,12 +12,16 @@
 
 class Shader {
 public:
+    GLuint id;
 	GLuint _program;
+
 	Shader(const GLchar* vertexPath, const GLchar* fragmentPath) {
 		std::string vertexCode;
 		std::string fragmentCode;
 		std::ifstream vertexShaderFile;
 		std::ifstream fragmentShaderFile;
+
+        id = 0;
 
 		vertexShaderFile.exceptions(std::ifstream::badbit);
 		fragmentShaderFile.exceptions(std::ifstream::badbit);
