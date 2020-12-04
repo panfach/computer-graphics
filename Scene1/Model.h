@@ -16,8 +16,7 @@
 
 using namespace std;
 
-class Model
-{
+class Model {
 public:
     vector<Texture> textureCache;
     vector<Mesh> meshes;
@@ -47,17 +46,20 @@ private:
     }
 
     void ProcessNode(aiNode* node, const aiScene* scene) {
-        // обработать все полигональные сетки в узле(если есть)
-        for (unsigned int i = 0; i < node->mNumMeshes; i++)
-        {
+
+        // Заполнение meshes
+        for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
             meshes.push_back(ProcessMesh(mesh, scene));
+            cout << "Model.h ProcessNode() mesh have " << meshes[0].textures.size() << " textures." << endl;
         }
-        // выполнить ту же обработку и для каждого потомка узла
-        for (unsigned int i = 0; i < node->mNumChildren; i++)
-        {
+
+        // Рекурсивная обработка дочерних мешей
+        for (unsigned int i = 0; i < node->mNumChildren; i++) {
             ProcessNode(node->mChildren[i], scene);
         }
+
+        cout << "Model.h ProcessNode() meshes.size = " << meshes.size() << endl;
     }
 
 	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene) {
@@ -65,27 +67,29 @@ private:
 		vector<unsigned int> indices;
 		vector<Texture> textures;
 
-		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-		{
+        // Заполнение vertices
+		for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 			Vertex vertex;
-
 			glm::vec3 vector;
+
 			vector.x = mesh->mVertices[i].x;
 			vector.y = mesh->mVertices[i].y;
 			vector.z = mesh->mVertices[i].z;
 			vertex.pos = vector;
 
-            if (mesh->HasNormals())
-            {
+            // Если есть нормали - заполнение
+            if (mesh->HasNormals()) {
                 vector.x = mesh->mNormals[i].x;
                 vector.y = mesh->mNormals[i].y;
                 vector.z = mesh->mNormals[i].z;
                 vertex.normal = vector;
             }
+            else 
+                vertex.normal = glm::vec3(0.0f, 0.0f, 0.0f);
 
-			if (mesh->mTextureCoords[0])
-			{
+			if (mesh->mTextureCoords[0]) {
                 glm::vec2 texVec;
+
 				texVec.x = mesh->mTextureCoords[0][i].x;
 				texVec.y = mesh->mTextureCoords[0][i].y;
 				vertex.texCoord = texVec;
@@ -106,8 +110,8 @@ private:
 			vertices.push_back(vertex);
 		}
 
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-		{
+        // Заполнение indices (Информация о гранях)
+		for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
 			aiFace face = mesh->mFaces[i];
 			for (unsigned int j = 0; j < face.mNumIndices; j++)
 				indices.push_back(face.mIndices[j]);
@@ -121,10 +125,10 @@ private:
         vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR);
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-        std::vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, NORMAL);
+        vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, NORMAL);
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
-        std::vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, HEIGHT);
+        vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, HEIGHT);
         textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 		return Mesh(vertices, indices, textures);
@@ -132,22 +136,23 @@ private:
 
     vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType texType) {
         vector<Texture> textures;
-        for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
-        {
+
+        for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
             aiString str;
-            mat->GetTexture(type, i, &str);
+            mat->GetTexture(type, i, &str);    
             
-            
+            // Проверка того, есть ли уже такая текстура в textureCache
             bool skip = false;
             for (unsigned int j = 0; j < textureCache.size(); j++)
             {
-                if (std::strcmp(textureCache[j].path.data(), str.C_Str()) == 0)
+                if (strcmp(textureCache[j].path.data(), str.C_Str()) == 0)
                 {
                     textures.push_back(textureCache[j]);
                     skip = true; 
                     break;
                 }
             }
+
             // Оптимизация
             if (!skip)
             {
@@ -169,6 +174,7 @@ private:
 
         unsigned int textureID;
         glGenTextures(1, &textureID);
+        cout << "Moedl.h LoadTextureFromFile() textureId = " << textureID << endl;
 
         int width, height, nrComponents;
         unsigned char* data = SOIL_load_image(filename.c_str(), &width, &height, &nrComponents, 0);
@@ -179,7 +185,7 @@ private:
                 format = GL_RED;
             else if (nrComponents == 3)
                 format = GL_RGB;
-            else if (nrComponents == 4)
+            else // nrComponents == 4
                 format = GL_RGBA;
 
             glBindTexture(GL_TEXTURE_2D, textureID);
@@ -196,7 +202,7 @@ private:
         }
         else
         {
-            std::cout << "Texture failed to load at path: " << path << std::endl;
+            std::cout << "Texture can not load texture:  " << path << std::endl;
             SOIL_free_image_data(data);
         }
 

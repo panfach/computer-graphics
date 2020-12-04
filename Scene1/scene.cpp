@@ -12,6 +12,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
+#include "CubeMap.h"
 
 
 GLfloat triangle01[] = {
@@ -71,27 +72,24 @@ GLfloat cube01[] = {
 	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 };
 
-glm::vec3 cubePositions[] = {
-  glm::vec3(0.0f,  0.0f,  0.0f),
-  glm::vec3(2.0f,  5.0f, -45.0f),
-  glm::vec3(-1.5f, -2.2f, -2.5f),
-  glm::vec3(-3.8f, -2.0f, -12.3f),
-  glm::vec3(2.4f, -0.4f, -3.5f),
-  glm::vec3(-1.7f,  3.0f, -7.5f),
-  glm::vec3(1.3f, -2.0f, -2.5f),
-  glm::vec3(1.5f,  2.0f, -2.5f),
-  glm::vec3(1.5f,  0.2f, -1.5f),
-  glm::vec3(-1.3f,  1.0f, -1.5f)
-};
 
-glm::vec3 lightPosition(1.2f, 1.0f, 2.0f);
-glm::vec3 lightAmbient(0.2f, 0.2f, 0.2f);
-glm::vec3 lightDiffuse(0.5f, 0.5f, 0.5f);
+glm::vec3 lightPosition(-5.0f, 5.0f, -10.0f);
+glm::vec3 lightAmbient(0.1f, 0.1f, 0.1f);
+glm::vec3 lightDiffuse(1.0f, 1.0f, 1.0f);
 glm::vec3 lightSpecular(1.0f, 1.0f, 1.0f);
 
 GLuint indices[] = { 
 	0, 1, 3, 
 	1, 2, 3
+};
+
+vector<std::string> skyboxFaces = {
+	"textures/right.jpg",
+	"textures/left.jpg",
+	"textures/top.jpg",
+	"textures/bottom.jpg",
+	"textures/front.jpg",
+	"textures/back.jpg"
 };
 
 bool firstMouseCallback = true;
@@ -105,7 +103,7 @@ GLfloat lastFrame = 0.0f;
 // Mouse Positions
 GLfloat lastMouseX = 400, lastMouseY = 300;
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
 
 // keys
 bool keys[1024];
@@ -155,24 +153,32 @@ int main() {
 		return -1;
 	}
 
-	//if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	//{
-	//	std::cout << "Failed to initialize GLAD" << std::endl;
-	//	return -1;
-	//}
 
 	// GL settings
 	glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LESS); // Эта строчка работает по умолчанию
 
 	// Shader
 	Shader lightingShader("shaders/lighting.vs", "shaders/lighting.frag");
 	Shader emissionShader("shaders/emission.vs", "shaders/emission.frag");
+	Shader skyboxShader("shaders/skybox.vs", "shaders/skybox.frag");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Loading model
-	Model meshModel("models/CHARACTER_Shrek.obj");
+	Model model_shrek("models/CHARACTER_Shrek.obj");
+	Model model_ground("models/10450_Rectangular_Grass_Patch_v1_iterations-2.obj");
+
+	// Creating skybox
+	CubeMap skybox(skyboxFaces);
 
 
+	//skyboxShader.Use();
+	//skyboxShader.SetInt("skybox", 0);
+	//cout << "skybox.texture = " << skybox.texture << std::endl;
+	//lightingShader.SetInt("diffuseTexture1", skybox.texture);
+
+
+	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 projection;
 
@@ -192,14 +198,15 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		lightDiffuse.y = (sin((GLfloat)glfwGetTime()) + 1) * 0.25f;
-		lightDiffuse.z = (sin((GLfloat)glfwGetTime()) + 1) * 0.25f;
 
-		lightAmbient.y = (sin((GLfloat)glfwGetTime()) + 1) * 0.1f;
-		lightAmbient.z = (sin((GLfloat)glfwGetTime()) + 1) * 0.1f;
+		//lightDiffuse.y = (sin((GLfloat)glfwGetTime()) + 1) * 0.25f;
+		//lightDiffuse.z = (sin((GLfloat)glfwGetTime()) + 1) * 0.25f;
 
-		lightSpecular.y = (sin((GLfloat)glfwGetTime()) + 1) * 0.5f;
-		lightSpecular.z = (sin((GLfloat)glfwGetTime()) + 1) * 0.5f;
+		//lightAmbient.y = (sin((GLfloat)glfwGetTime()) + 1) * 0.1f;
+		//lightAmbient.z = (sin((GLfloat)glfwGetTime()) + 1) * 0.1f;
+
+		//lightSpecular.y = (sin((GLfloat)glfwGetTime()) + 1) * 0.5f;
+		//lightSpecular.z = (sin((GLfloat)glfwGetTime()) + 1) * 0.5f;
 
 
 		lightingShader.Use();
@@ -226,9 +233,9 @@ int main() {
 		glm::vec3 diffuse = glm::vec3(0.6f, 0.3f, 0.3f);
 		glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
-		lightingShader.SetVec3("material.diffuse", diffuse);
-		lightingShader.SetVec3("material.specular", specular);
-		lightingShader.SetFloat("material.shininess", 32.0f);
+		//lightingShader.SetVec3("material.diffuse", diffuse);
+		//lightingShader.SetVec3("material.specular", specular);
+		//lightingShader.SetFloat("material.shininess", 32.0f);
 
 		lightingShader.SetVec3("light.ambient", lightAmbient);
 		lightingShader.SetVec3("light.diffuse", lightDiffuse);
@@ -238,23 +245,39 @@ int main() {
 		                                       
 
 		// Transformations
+		model = glm::mat4();
 		view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
 		projection = glm::perspective<float>(glm::radians(camera.fov), (float)width / height, 0.1f, 100.0f);
 
 		GLuint modelLoc = glGetUniformLocation(lightingShader._program, "model");
 		GLuint viewLoc = glGetUniformLocation(lightingShader._program, "view");
 		GLuint projectionLoc = glGetUniformLocation(lightingShader._program, "projection");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		// Object
 		//glBindVertexArray(VAO);
-		glm::mat4 model;
-		//model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
+		model_shrek.Draw(lightingShader);
+
+		model = glm::translate(model, glm::vec3(0.0f, -0.14f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.02f));
+		model = glm::rotate(model, (glm::radians)(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		meshModel.Draw(lightingShader);
+
+		model_ground.Draw(lightingShader);
 		//glBindVertexArray(0);
 
+
+		glDepthFunc(GL_LEQUAL);
+		skyboxShader.Use();
+		view = glm::mat4(glm::mat3(view)); // Убирает из матрицы информацию о перемещении
+		GLuint skyboxViewLoc = glGetUniformLocation(skyboxShader._program, "view");
+		GLuint skyboxProjectionLoc = glGetUniformLocation(skyboxShader._program, "projection");
+		glUniformMatrix4fv(skyboxViewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(skyboxProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		skybox.Draw(skyboxShader);
+		glDepthFunc(GL_LESS);
 
 
 		/*emissionShader.Use();
@@ -293,6 +316,8 @@ int main() {
 		}
 	}
 
+	glDeleteVertexArrays(1, &(skybox.VAO));
+	glDeleteBuffers(1, &(skybox.VAO));
 
 	glfwTerminate();
 	return 0;

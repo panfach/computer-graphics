@@ -57,6 +57,7 @@ public:
 
         for (unsigned int i = 0; i < textures.size(); i++)
         {
+            
             glActiveTexture(GL_TEXTURE0 + i);
             // retrieve texture number (the N in diffuse_textureN)
             string number;
@@ -92,8 +93,8 @@ public:
             //    number = std::to_string(heightNr++); // transfer unsigned int to stream
 
 
-            //glUniform1i(glGetUniformLocation(shader.id, (name + number).c_str()), i);
-            glUniform1i(glGetUniformLocation(shader.id, (name + number).c_str()), i);
+            // Назначение uniform переменной в фрагментном шейдере
+            glUniform1i(glGetUniformLocation(shader._program, (name + number).c_str()), i);
             glBindTexture(GL_TEXTURE_2D, textures[i].id);
         }
 

@@ -38,17 +38,21 @@ void main()
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 viewDir = normalize(-fragPosition);
     vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16);
 
-    vec3 ambient  = light.ambient * material.ambient * vec3(texture(diffuseTexture1, texCoords));
+    //if (diff < 0.2f) diff = 0.0f;
+    //else if (diff < 0.5) diff = 0.4f;
+    //else if (diff < 0.8) diff = 0.8f;
+    //else diff = 1.0f;
+
+
+    vec3 ambient  = light.ambient * vec3(texture(diffuseTexture1, texCoords));
     vec3 diffuse  = light.diffuse * diff * vec3(texture(diffuseTexture1, texCoords));
-    vec3 specular = 0.3f * light.specular * spec * vec3(texture(specularTexture1, texCoords));  
-
-    //vec3 ambient  = light.ambient * material.ambient * vec3(texture(material.diffuse, texCoords));
-    //vec3 diffuse  = light.diffuse * diff * vec3(texture(material.diffuse, texCoords));
-    //vec3 specular = 2 * light.specular * spec * vec3(texture(material.specular, texCoords));  
+    vec3 specular = 0.3f * light.specular * spec * vec3(texture(specularTexture1, texCoords)); 
 
     vec3 result = ambient + diffuse + specular;
-    //vec3 result = material.diffuse;
+    
+    
+
     color = vec4(result, 1.0f);
 }

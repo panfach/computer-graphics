@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+using namespace std;
 
 enum CameraDirection {
 	FORWARD,
@@ -42,7 +43,7 @@ public:
 		pitch = _pitch;
 		fov = _fov;
 
-		std::cout << "fov = " << fov;
+		std::cout << "fov = " << fov << endl;
 
 		RecalculateVectors();
 	}

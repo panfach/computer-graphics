@@ -27,6 +27,9 @@
     <ClCompile Include="Model.h">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="CubeMap.h">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -44,6 +47,12 @@
       <Filter>Исходные файлы</Filter>
     </None>
     <None Include="shaders\emission.vs">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="shaders\skybox.frag">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="shaders\skybox.vs">
       <Filter>Исходные файлы</Filter>
     </None>
   </ItemGroup>
