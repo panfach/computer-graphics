@@ -10,27 +10,29 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+using namespace std;
+
 class Shader {
 public:
     GLuint id;
 	GLuint _program;
 
 	Shader(const GLchar* vertexPath, const GLchar* fragmentPath) {
-		std::string vertexCode;
-		std::string fragmentCode;
-		std::ifstream vertexShaderFile;
-		std::ifstream fragmentShaderFile;
+		string vertexCode;
+		string fragmentCode;
+		ifstream vertexShaderFile;
+		ifstream fragmentShaderFile;
 
         id = 0;
 
-		vertexShaderFile.exceptions(std::ifstream::badbit);
-		fragmentShaderFile.exceptions(std::ifstream::badbit);
+		vertexShaderFile.exceptions(ifstream::badbit);
+		fragmentShaderFile.exceptions(ifstream::badbit);
 
         try {
 
             vertexShaderFile.open(vertexPath);
             fragmentShaderFile.open(fragmentPath);
-            std::stringstream vertexShaderStream, fragmentShaderStream;
+            stringstream vertexShaderStream, fragmentShaderStream;
 
             vertexShaderStream << vertexShaderFile.rdbuf();
             fragmentShaderStream << fragmentShaderFile.rdbuf();
@@ -41,8 +43,8 @@ public:
             vertexCode = vertexShaderStream.str();
             fragmentCode = fragmentShaderStream.str();
         }
-        catch (std::ifstream::failure e) {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+        catch (ifstream::failure e) {
+            cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << endl;
         }
 
         const GLchar* vertexShaderCode = vertexCode.c_str();
@@ -59,7 +61,7 @@ public:
         glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+            cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
         };
 
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -69,7 +71,7 @@ public:
         glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+            cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << endl;
         }
 
         _program = glCreateProgram();
@@ -80,7 +82,7 @@ public:
         glGetProgramiv(_program, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(_program, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+            cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << endl;
         }
 
         glDeleteShader(vertex);
@@ -97,13 +99,18 @@ public:
         glUniform1f(loc, value);
     }
 
-    void SetVec3(const char* variableName, glm::vec3 value) {
+    void SetVec3(const char* variableName, glm::vec3 &value) {
         SetVec3(variableName, value.x, value.y, value.z);
     }
 
     void SetVec3(const char* variableName, float x, float y, float z) {
         GLint loc = glGetUniformLocation(_program, variableName);
         glUniform3f(loc, x, y, z);
+    }
+
+    void SetMat4(const char* variableName, glm::mat4 &value) {
+        GLint loc = glGetUniformLocation(_program, variableName);
+        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
     }
 
     void Use() {
