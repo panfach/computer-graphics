@@ -2,22 +2,18 @@
 #define MESH_H
 #define GLM_FORCE_RADIANS
 
-
-#include "Shader.h"
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <SOIL/SOIL.h>
 #include <vector>
 #include <string>
+#include "Shader.h"
 
 using namespace std;
 
-struct Vertex {
-    glm::vec3 pos;
-    glm::vec3 normal;
-    glm::vec2 texCoord;
-    glm::vec3 tangent;
-    glm::vec3 bitangent;
-};
+// Загрузка текстуры из файла filename в папке directory
+static unsigned int LoadTexture(const string filename, const string& directory);
 
 enum TextureType {
     DIFFUSE = 0,
@@ -26,11 +22,67 @@ enum TextureType {
     HEIGHT = 3
 };
 
+enum MeshType {
+    COMPLEX,
+    PLANE
+};
+
+struct Vertex {
+    glm::vec3 pos;
+    glm::vec3 normal;
+    glm::vec2 texCoord;
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
+
+    Vertex() {
+        pos = glm::vec3(0.0f);
+        normal = glm::vec3(0.0f, 1.0f, 0.0f);
+        texCoord = glm::vec2(0.0f);
+        tangent = glm::vec3(1.0f, 0.0f, 0.0f);
+        bitangent = glm::vec3(0.0f, 0.0f, 1.0f);
+    }
+
+    Vertex(glm::vec3 _pos, glm::vec3 _norm = glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2 _texCoord = glm::vec2(0.0f),
+        glm::vec3 _tang = glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3 _bitang = glm::vec3(0.0f, 0.0f, 1.0f)) {
+        pos = _pos;
+        normal = _norm;
+        texCoord = _texCoord;
+        tangent = _tang;
+        bitangent = _bitang;
+    }
+};
+
 struct Texture {
     unsigned int id;
     TextureType type;
     string path;
+
+    Texture() {
+        id = 0;
+        type = DIFFUSE;
+        path = "";
+    }
+
+    Texture(TextureType _type, const string _path) {
+        string filepath = _path.substr(0, _path.find_last_of('/'));
+        string filename = _path.substr(_path.find_last_of('/') + 1);
+        id = LoadTexture(filename, filepath);
+        type = _type;
+        path = filename;
+    }
 };
+
+// Плоскость из четырех вершин
+static GLfloat planeVertices[] = {
+     // Координаты         // Нормали          // Текстура   // Касательные
+     0.5f,  0.0f,  0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+     0.5f,  0.0f, -0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+    -0.5f,  0.0f, -0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+    -0.5f,  0.0f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f
+};
+
+static GLuint defaultIndices[] = { 0, 1, 3, 1, 2, 3 };
+
 
 class Mesh {
 public:
@@ -39,11 +91,35 @@ public:
     vector<Texture>      textures;
     unsigned int VAO, VBO, EBO;
 
-    Mesh(vector<Vertex> _vertices, vector<unsigned int> _indices, vector<Texture> _textures)
-    {
+    // Создание меша, используя готовые векторы с данными
+    Mesh(vector<Vertex> _vertices, vector<unsigned int> _indices, vector<Texture> _textures) {
         vertices = _vertices;
         indices = _indices;
         textures = _textures;
+
+        Init();
+    }
+
+    // Создание примитивного меша типа, описанного переменной MeshType
+    Mesh(MeshType meshType, int textureAmount, Texture* texture) {
+        int size;
+        if (meshType == PLANE) {
+            size = 14;
+            for (int i = 0; i < 4; i++) {
+                glm::vec3 _pos(planeVertices[i * size], planeVertices[i * size + 1], planeVertices[i * size + 2]);
+                glm::vec3 _norm(planeVertices[i * size + 3], planeVertices[i * size + 4], planeVertices[i * size + 5]);
+                glm::vec2 _texCoord(planeVertices[i * size + 6], planeVertices[i * size + 7]);
+                glm::vec3 _tangent(planeVertices[i * size + 8], planeVertices[i * size + 9], planeVertices[i * size + 10]);
+                glm::vec3 _bitangent(planeVertices[i * size + 11], planeVertices[i * size + 12], planeVertices[i * size + 13]);
+                vertices.push_back(Vertex(_pos, _norm, _texCoord, _tangent, _bitangent));
+            }
+            for (int i = 0; i < 6; i++) {
+                indices.push_back(defaultIndices[i]);
+            }
+            for (int i = 0; i < textureAmount; i++) {
+                textures.push_back(texture[i]);
+            }
+        }
 
         Init();
     }
@@ -101,6 +177,7 @@ public:
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
+        //glBindTexture(GL_TEXTURE_2D, 0);
 
         glActiveTexture(GL_TEXTURE0);
     }
@@ -131,4 +208,43 @@ private:
         glBindVertexArray(0);
     }
 };
+
+static unsigned int LoadTexture(const string filename, const string& directory) {
+    int width, height, nrComponents;
+    string path = directory + '/' + filename;
+
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    cout << "Moedl.h LoadTextureFromFile() textureId = " << textureID << endl;
+
+    unsigned char* data = SOIL_load_image(path.c_str(), &width, &height, &nrComponents, 0);
+
+    if (data) {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else // nrComponents == 4
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        SOIL_free_image_data(data);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    else {
+        std::cout << "Texture can not load texture: " << path << std::endl;
+        SOIL_free_image_data(data);
+    }
+
+    return textureID;
+}
 #endif

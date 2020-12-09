@@ -4,14 +4,12 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <SOIL/SOIL.h>
 #include <vector>
 #include <string>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "Shader.h"
 #include "Mesh.h"
 
 using namespace std;
@@ -22,9 +20,10 @@ public:
     vector<Mesh> meshes;
     string directory;
 
-    Model(const char* path) {
-        LoadModel(path);
+    Model(const char* _path) {
+        LoadModel(_path);
     }
+    
 
     void Draw(Shader shader) {
         for (unsigned int i = 0; i < meshes.size(); i++)
@@ -32,7 +31,7 @@ public:
     }
 
 private:
-    void LoadModel(string path) {
+    void LoadModel(const string &path) {
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
@@ -125,10 +124,10 @@ private:
         vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR);
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-        vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, NORMAL);
+        vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, HEIGHT);
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
-        vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, HEIGHT);
+        vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, NORMAL);
         textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 		return Mesh(vertices, indices, textures);
@@ -138,15 +137,13 @@ private:
         vector<Texture> textures;
 
         for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
-            aiString str;
-            mat->GetTexture(type, i, &str);    
+            aiString sourceName;
+            mat->GetTexture(type, i, &sourceName); 
             
             // Проверка того, есть ли уже такая текстура в textureCache
             bool skip = false;
-            for (unsigned int j = 0; j < textureCache.size(); j++)
-            {
-                if (strcmp(textureCache[j].path.data(), str.C_Str()) == 0)
-                {
+            for (unsigned int j = 0; j < textureCache.size(); j++) {
+                if (strcmp(textureCache[j].path.data(), sourceName.C_Str()) == 0) {
                     textures.push_back(textureCache[j]);
                     skip = true; 
                     break;
@@ -154,59 +151,16 @@ private:
             }
 
             // Оптимизация
-            if (!skip)
-            {
+            if (!skip) {
                 Texture texture;
-                texture.id = LoadTextureFromFile(str.C_Str(), this->directory);
+                texture.id = LoadTexture(sourceName.C_Str(), this->directory);
                 texture.type = texType;
-                texture.path = str.C_Str();
+                texture.path = sourceName.C_Str();
                 textures.push_back(texture);
                 textureCache.push_back(texture);
             }
         }
         return textures;
-    }
-
-    unsigned int LoadTextureFromFile(const char* path, const string& directory, bool gamma = false)
-    {
-        string filename = string(path);
-        filename = directory + '/' + filename;
-
-        unsigned int textureID;
-        glGenTextures(1, &textureID);
-        cout << "Moedl.h LoadTextureFromFile() textureId = " << textureID << endl;
-
-        int width, height, nrComponents;
-        unsigned char* data = SOIL_load_image(filename.c_str(), &width, &height, &nrComponents, 0);
-        if (data)
-        {
-            GLenum format;
-            if (nrComponents == 1)
-                format = GL_RED;
-            else if (nrComponents == 3)
-                format = GL_RGB;
-            else // nrComponents == 4
-                format = GL_RGBA;
-
-            glBindTexture(GL_TEXTURE_2D, textureID);
-            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-            SOIL_free_image_data(data);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-        else
-        {
-            std::cout << "Texture can not load texture:  " << path << std::endl;
-            SOIL_free_image_data(data);
-        }
-
-        return textureID;
     }
 };
 

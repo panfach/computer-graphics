@@ -101,8 +101,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <LibraryPath>D:\And\Prog\cpp\computer graphics\ext\libs;$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\And\Prog\cpp\computer graphics\ext\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\ext\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\ext\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

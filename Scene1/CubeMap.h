@@ -1,3 +1,4 @@
+#define GLEW_STATIC
 #ifndef CUBEMAP_H
 #define CUBEMAP_H
 #define GLM_FORCE_RADIANS

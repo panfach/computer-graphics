@@ -1,3 +1,5 @@
+#ifndef CAMERA_H
+#define CAMERA_H
 #define GLM_FORCE_RADIANS
 
 #include <iostream>
@@ -98,3 +100,4 @@ private:
 		up = glm::normalize(glm::cross(right, front));
 	}
 };
+#endif
