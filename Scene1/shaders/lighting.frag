@@ -33,47 +33,47 @@ uniform sampler2D specularTexture1;
 uniform sampler2D normalTexture1;
 uniform sampler2D shadowMap;
 
+uniform int hasNormalMap;
+
 void main()
 {
-    float spec;
+    float diff, spec;
+    vec3 norm, viewDir, reflectDir;
 
-    float specularStrength = 0.5f;
+    float specularStrength = 1.0f;
     float ambientStrength = 0.1f;
 
-    /*
-    //vec3 norm0 = texture(normalTexture1, texCoords).rgb;
-    vec3 norm = normalize(normal);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 viewDir = normalize(-fragPosition);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16);
-
-    vec3 projCoords = lightFragPosition.xyz / lightFragPosition.w;
-    projCoords = projCoords * 0.5f + 0.5f;
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
-    float currentDepth = projCoords.z;
-    //float calcShift = max (0.05f * (1.0f - dot(normal, lightDir)), 0.005);
-    //float shadow = (currentDepth - 0.005 > closestDepth) ? 1.0f : 0.0f;  
-    */
 
 
+    if (hasNormalMap == 1) {
+        norm = texture(normalTexture1, texCoords).rgb;
+        norm = normalize(norm * 2.0f - 1.0f);
 
-
-    //vec3 norm = normalize(normal);
-    //float diff = max(dot(norm, -lightDir), 0.0);
-
-    vec3 norm = texture(normalTexture1, texCoords).rgb;
-    norm = normalize(norm * 2.0f - 1.0f);
-    float diff = max(dot(norm, -tangentLightDir), 0.0f);
-    vec3 viewDir = normalize(tangentCameraPos - tangentFragPosition);
-    /*if (dot(norm, viewDir) < 0.0f) {
-        diff = 0.0f;
-        spec = 0.0f;
+        diff = max(dot(norm, -tangentLightDir), 0.0f);
+        viewDir = normalize(tangentCameraPos - tangentFragPosition);
+        if (dot(norm, viewDir) < 0.0f) {
+            diff = 0.0f;
+            spec = 0.0f;
+        }
+        else {
+            reflectDir = reflect(tangentLightDir, norm);
+            spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+        }
     }
-    else {*/
-        vec3 reflectDir = reflect(tangentLightDir, norm);
-        spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    //}
+    else {
+        norm = normal;
+
+        diff = max(dot(norm, -lightDir), 0.0f);
+        viewDir = normalize(cameraPos - fragPosition);
+        if (dot(norm, viewDir) < 0.0f) {
+            diff = 0.0f;
+            spec = 0.0f;
+        }
+        else {
+            reflectDir = reflect(lightDir, norm);
+            spec = pow(max(dot(viewDir, reflectDir), 0.0), 16);
+        }
+    }
 
     vec3 projCoords = lightFragPosition.xyz / lightFragPosition.w;
     projCoords = projCoords * 0.5f + 0.5f;

@@ -65,6 +65,7 @@ private:
 		vector<Vertex> vertices;
 		vector<unsigned int> indices;
 		vector<Texture> textures;
+        bool hasNormal = false;
 
         // Заполнение vertices
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
@@ -124,13 +125,14 @@ private:
         vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR);
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-        vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, HEIGHT);
+        vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, NORMAL);
+        if (normalMaps.size() > 0) hasNormal = true;
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
-        vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, NORMAL);
+        vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, HEIGHT);
         textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-		return Mesh(vertices, indices, textures);
+		return Mesh(vertices, indices, textures, hasNormal);
 	}
 
     vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType texType) {

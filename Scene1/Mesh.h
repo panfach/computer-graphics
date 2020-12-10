@@ -34,12 +34,20 @@ struct Vertex {
     glm::vec3 tangent;
     glm::vec3 bitangent;
 
-    Vertex() {
+    /*Vertex() {
         pos = glm::vec3(0.0f);
         normal = glm::vec3(0.0f, 1.0f, 0.0f);
         texCoord = glm::vec2(0.0f);
         tangent = glm::vec3(1.0f, 0.0f, 0.0f);
         bitangent = glm::vec3(0.0f, 0.0f, 1.0f);
+    }*/
+
+    Vertex() {
+        pos = glm::vec3(0.0f);
+        normal = glm::vec3(0.0f);
+        texCoord = glm::vec2(0.0f);
+        tangent = glm::vec3(0.0f);
+        bitangent = glm::vec3(0.0f);
     }
 
     Vertex(glm::vec3 _pos, glm::vec3 _norm = glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2 _texCoord = glm::vec2(0.0f),
@@ -89,13 +97,15 @@ public:
     vector<Vertex>       vertices;
     vector<unsigned int> indices;
     vector<Texture>      textures;
+    bool hasNormal;
     unsigned int VAO, VBO, EBO;
 
     // —оздание меша, использу€ готовые векторы с данными
-    Mesh(vector<Vertex> _vertices, vector<unsigned int> _indices, vector<Texture> _textures) {
+    Mesh(vector<Vertex> _vertices, vector<unsigned int> _indices, vector<Texture> _textures, bool normalFlag = false) {
         vertices = _vertices;
         indices = _indices;
         textures = _textures;
+        hasNormal = normalFlag;
 
         Init();
     }
@@ -117,6 +127,10 @@ public:
                 indices.push_back(defaultIndices[i]);
             }
             for (int i = 0; i < textureAmount; i++) {
+                if (texture[i].type == NORMAL) {
+                    hasNormal = true;
+                    cout << "This plane has normal map ..." << endl;
+                }
                 textures.push_back(texture[i]);
             }
         }
@@ -131,32 +145,34 @@ public:
         unsigned int normalNr = 1;
         unsigned int heightNr = 1;
 
+        shader.SetInt("hasNormalMap", (hasNormal) ? 1 : 0);
+        
         for (unsigned int i = 0; i < textures.size(); i++)
         {
             
-            glActiveTexture(GL_TEXTURE0 + i);
-            // retrieve texture number (the N in diffuse_textureN)
-            string number;
-            string name;
-            TextureType type = textures[i].type;
-            switch (type) {
-            case DIFFUSE:
-                number = to_string(diffuseNr++);
-                name = "diffuseTexture";
-                break;
-            case SPECULAR:
-                number = to_string(specularNr++);
-                name = "specularTexture";
-                break;
-            case NORMAL:
-                number = to_string(normalNr++);
-                name = "normalTexture";
-                break;
-            case HEIGHT:
-                number = to_string(heightNr++);
-                name = "heightTexture";
-                break;
-            }
+			glActiveTexture(GL_TEXTURE0 + i);
+			// retrieve texture number (the N in diffuse_textureN)
+			string number;
+			string name;
+			TextureType type = textures[i].type;
+			switch (type) {
+			case DIFFUSE:
+				number = to_string(diffuseNr++);
+				name = "diffuseTexture";
+				break;
+			case SPECULAR:
+				number = to_string(specularNr++);
+				name = "specularTexture";
+				break;
+			case NORMAL:
+				number = to_string(normalNr++);
+				name = "normalTexture";
+				break;
+			case HEIGHT:
+				number = to_string(heightNr++);
+				name = "heightTexture";
+				break;
+			}
 
 
             //if (name == "texture_diffuse")
@@ -177,7 +193,7 @@ public:
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
-        //glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         glActiveTexture(GL_TEXTURE0);
     }

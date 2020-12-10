@@ -53,7 +53,7 @@ int main() {
 
 	// Основной параллельный источник освещения
 	//glm::vec3 lightPosition(-3.6f, 2.5f, -2.5f);
-	glm::vec3 lightPosition(-3.6f, 10.5f, -2.5f);
+	glm::vec3 lightPosition(-3.6f, 2.5f, 2.5f);
 	glm::vec3 lightAmbient(0.1f, 0.1f, 0.1f);
 	glm::vec3 lightDiffuse(1.0f, 0.8f, 0.6f);
 	glm::vec3 lightSpecular(1.0f, 0.9f, 0.8f);
@@ -111,7 +111,8 @@ int main() {
 	//Texture meshTextures[] = { Texture(NORMAL, "textures/bricks_normal.jpg"), Texture(DIFFUSE, "textures/bricks.jpg") };
 	Mesh mesh_bricks(PLANE, 2, meshTextures);
 	Model model_shrek("models/CHARACTER_Shrek.obj");
-	Model model_ground("models/10450_Rectangular_Grass_Patch_v1_iterations-2.obj");
+	Model model_ground("models/10450_Rectangular_Grass_Patch_v1_iterations-2.obj"); 
+	model_ground.meshes[0].hasNormal = false;
 	CubeMap skybox(skyboxFaces);
 
 
@@ -154,15 +155,15 @@ int main() {
 		// Работа с источником света
 		//lightSpecular.y = (sin((GLfloat)glfwGetTime()) + 1) * 0.5f;
 		//lightSpecular.z = (sin((GLfloat)glfwGetTime()) + 1) * 0.5f;
-		lightPosition.z = 3.0f;
-		lightPosition.y = 4.0f;
-		lightPosition.x = (sin(0.6f * (GLfloat)glfwGetTime())) * 10.0f;
+		//lightPosition.z = 3.0f;
+		//lightPosition.y = 4.0f;
+		//lightPosition.x = (sin(0.6f * (GLfloat)glfwGetTime())) * 10.0f;
 		glm::vec3 lightDir = glm::normalize(-lightPosition);
 
 
 		// Первая отрисовка: Получение буфера глубины для теней
 		shadowShader.Use();
-		lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, nearPlane, farPlane);
+		lightProjection = glm::ortho(-3.0f, 3.0f, -3.0f, 3.0f, nearPlane, farPlane);
 		lightView = glm::lookAt(lightPosition, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		lightViewProjection = lightProjection * lightView;
 		shadowShader.SetMat4("lightViewProjection", lightViewProjection);
@@ -218,6 +219,8 @@ int main() {
 		lightingShader.SetMat4("tangentMatrix", tangent);
 
 		model = glm::mat4();
+		//model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		lightingShader.SetMat4("model", model);
 		model_shrek.Draw(lightingShader);
 
@@ -229,10 +232,10 @@ int main() {
 		model_ground.Draw(lightingShader);
 
 		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(0.0f, 4.0f, 0.0f));
-		//model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 1.0f, -1.0f));
+		model = glm::scale(model, glm::vec3(3.0f));
+		model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		//model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		//model = glm::scale(model, glm::vec3(3.0f));
 		lightingShader.SetMat4("model", model);
 		mesh_bricks.Draw(lightingShader);
 

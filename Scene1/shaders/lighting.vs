@@ -35,8 +35,9 @@ void main()
     lightFragPosition = lightViewProjection * vec4(modelFragPosition, 1.0f);*/
 
     texCoords = _texCoords;
-    normal = mat3(model) * _normal;
+    normal = normalize(mat3(transpose(inverse(model))) * _normal);
     lightDir = lightDirection;
+    cameraPos = cameraPosition;
     tangentLightDir = lightDirection;
     vec3 modelFragPosition = vec3(model * vec4(_position, 1.0f));
     fragPosition = modelFragPosition;
