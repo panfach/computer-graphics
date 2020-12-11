@@ -94,7 +94,7 @@ int main() {
 
 	// ВКЛЮЧЕНИЕ DEPTH TEST
 	glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LESS); // Эта строчка работает по умолчанию
+	//glDepthFunc(GL_GREATER);
 
 
 	// Шейдеры
@@ -102,6 +102,7 @@ int main() {
 	Shader emissionShader("shaders/emission.vs", "shaders/emission.frag");
 	Shader shadowShader("shaders/shadow.vs", "shaders/shadow.frag");
 	Shader skyboxShader("shaders/skybox.vs", "shaders/skybox.frag");
+	Shader postShader("shaders/post.vs", "shaders/post.frag");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
@@ -114,7 +115,6 @@ int main() {
 	Model model_ground("models/10450_Rectangular_Grass_Patch_v1_iterations-2.obj"); 
 	model_ground.meshes[0].hasNormal = false;
 	CubeMap skybox(skyboxFaces);
-
 
 	// Инициализация кадрового буфера и текстуры для теней
 	unsigned int depthMapFB, depthMap;
@@ -133,6 +133,36 @@ int main() {
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	// Инициализация кадрового буфера для изображения перед пост обработкой
+	unsigned int frameTextureFB, frameTexture;
+	glGenFramebuffers(1, &frameTextureFB);
+	glGenTextures(1, &frameTexture);
+	glBindTexture(GL_TEXTURE_2D, frameTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameTexture, 0);
+	//glDrawBuffer(GL_NONE);
+	//glReadBuffer(GL_NONE);
+
+	//Инициализация рендер буфера
+	unsigned int RB;
+	glGenRenderbuffers(1, &RB);
+	glBindRenderbuffer(GL_RENDERBUFFER, RB);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RB);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		cout << "Error: renderbuffer is not complete!" << endl;
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	// Создание прямоугольника, на который будет натягиваться итоговая текстура
+	Mesh outScreen(frameTexture);
 
 	// Using key callbacks
 	glfwSetKeyCallback(window, KeyCallback);
@@ -148,10 +178,10 @@ int main() {
 		Move();
 		Zoom();
 
-
+		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+		
 		// Работа с источником света
 		//lightSpecular.y = (sin((GLfloat)glfwGetTime()) + 1) * 0.5f;
 		//lightSpecular.z = (sin((GLfloat)glfwGetTime()) + 1) * 0.5f;
@@ -189,16 +219,15 @@ int main() {
 		//model = glm::scale(model, glm::vec3(3.0f));
 		shadowShader.SetMat4("model", model);
 		mesh_bricks.Draw(shadowShader);
-		
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
 		// Возврат к настройкам окна
 		glViewport(0, 0, screenWidth, screenHeight);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Вторая отрисовка
+		glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		lightingShader.Use();
 		lightingShader.SetVec3("light.ambient", lightAmbient);
 		lightingShader.SetVec3("light.diffuse", lightDiffuse);
@@ -248,6 +277,15 @@ int main() {
 		skyboxShader.SetMat4("projection", projection);
 		skybox.Draw(skyboxShader);
 		glDepthFunc(GL_LESS);
+
+
+		// Отрисовка итогового изображения
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT);
+		postShader.Use();
+		outScreen.Draw(postShader);
+		glEnable(GL_DEPTH_TEST);
 
 
 		glfwSwapBuffers(window);

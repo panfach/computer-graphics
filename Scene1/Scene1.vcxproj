@@ -33,6 +33,8 @@
     <None Include="shaders\emission.vs" />
     <None Include="shaders\lighting.frag" />
     <None Include="shaders\lighting.vs" />
+    <None Include="shaders\post.frag" />
+    <None Include="shaders\post.vs" />
     <None Include="shaders\shadow.frag" />
     <None Include="shaders\shadow.vs" />
     <None Include="shaders\skybox.frag" />

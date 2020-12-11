@@ -78,6 +78,12 @@ struct Texture {
         type = _type;
         path = filename;
     }
+
+    Texture(unsigned int _id) {
+        id = _id;
+        type = DIFFUSE;
+        path = "";
+    }
 };
 
 // Плоскость из четырех вершин
@@ -87,6 +93,15 @@ static GLfloat planeVertices[] = {
      0.5f,  0.0f, -0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
     -0.5f,  0.0f, -0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
     -0.5f,  0.0f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f
+};
+
+// Плоскость из четырех вершин, повернутая по другому
+static GLfloat planeVertices2[] = {
+    // Координаты         // Нормали          // Текстура   // Касательные
+    0.5f,  0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+    0.5f,  -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+   -0.5f,  -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+   -0.5f,  0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f
 };
 
 static GLuint defaultIndices[] = { 0, 1, 3, 1, 2, 3 };
@@ -134,6 +149,25 @@ public:
                 textures.push_back(texture[i]);
             }
         }
+
+        Init();
+    }
+
+    Mesh(unsigned int texture) {
+        int size = 14;
+        for (int i = 0; i < 4; i++) {
+            glm::vec3 _pos(planeVertices2[i * size], planeVertices2[i * size + 1], planeVertices2[i * size + 2]);
+            glm::vec3 _norm(planeVertices2[i * size + 3], planeVertices2[i * size + 4], planeVertices2[i * size + 5]);
+            glm::vec2 _texCoord(planeVertices2[i * size + 6], planeVertices2[i * size + 7]);
+            vertices.push_back(Vertex(_pos, _norm, _texCoord));
+        }
+        for (int i = 0; i < 6; i++) {
+            indices.push_back(defaultIndices[i]);
+        }
+        for (int i = 0; i < 6; i++) {
+            indices.push_back(defaultIndices[i]);
+        }
+        textures.push_back(Texture(texture));
 
         Init();
     }

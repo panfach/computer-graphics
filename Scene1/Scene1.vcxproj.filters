@@ -61,5 +61,11 @@
     <None Include="shaders\shadow.vs">
       <Filter>Исходные файлы</Filter>
     </None>
+    <None Include="shaders\post.frag">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="shaders\post.vs">
+      <Filter>Исходные файлы</Filter>
+    </None>
   </ItemGroup>
 </Project>
