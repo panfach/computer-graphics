@@ -67,5 +67,17 @@
     <None Include="shaders\post.vs">
       <Filter>Исходные файлы</Filter>
     </None>
+    <None Include="shaders\light_shadow.frag">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="shaders\light_shadow.vs">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="shaders\gauss.frag">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="shaders\gauss.vs">
+      <Filter>Исходные файлы</Filter>
+    </None>
   </ItemGroup>
 </Project>

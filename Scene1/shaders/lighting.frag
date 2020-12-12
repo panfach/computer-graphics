@@ -51,7 +51,7 @@ void main()
 
         diff = max(dot(norm, -tangentLightDir), 0.0f);
         viewDir = normalize(tangentCameraPos - tangentFragPosition);
-        if (dot(norm, viewDir) < 0.0f) {
+        if (dot(norm, viewDir) < -0.2f) {
             diff = 0.0f;
             spec = 0.0f;
         }
@@ -65,7 +65,7 @@ void main()
 
         diff = max(dot(norm, -lightDir), 0.0f);
         viewDir = normalize(cameraPos - fragPosition);
-        if (dot(norm, viewDir) < 0.0f) {
+        if (dot(norm, viewDir) < -0.2f) {
             diff = 0.0f;
             spec = 0.0f;
         }
@@ -100,5 +100,9 @@ void main()
 
     vec3 result = ambient + (1.0f - shadow) * (diffuse + specular);
 
-    color = vec4(result, 1.0);
+
+
+    color = vec4(result, gl_FragCoord.z);
+    //color = vec4(vec3(1.0f - gl_FragCoord.z), 1.0f);
+    //gl_FragColor = vec4(1.0f);
 }

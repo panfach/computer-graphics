@@ -31,8 +31,12 @@
   <ItemGroup>
     <None Include="shaders\emission.frag" />
     <None Include="shaders\emission.vs" />
+    <None Include="shaders\gauss.frag" />
+    <None Include="shaders\gauss.vs" />
     <None Include="shaders\lighting.frag" />
     <None Include="shaders\lighting.vs" />
+    <None Include="shaders\light_shadow.frag" />
+    <None Include="shaders\light_shadow.vs" />
     <None Include="shaders\post.frag" />
     <None Include="shaders\post.vs" />
     <None Include="shaders\shadow.frag" />

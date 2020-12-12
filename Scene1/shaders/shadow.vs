@@ -2,16 +2,18 @@
 
 layout (location = 0) in vec3 _position;
 
-out vec4 fragCoord;
+out vec4 lightFragPosition;
 
-uniform mat4 lightViewProjection;
 uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+uniform mat4 lightViewProjection;
 
 void main()
 {
-    //fragPosition =  vec3(model * vec4(_position, 1.0f));
+    vec3 modelFragPosition = vec3(model * vec4(_position, 1.0f));
+    lightFragPosition = lightViewProjection * vec4(modelFragPosition, 1.0f);
 
-    gl_Position = lightViewProjection * model * vec4(_position, 1.0);
-
-    fragCoord = gl_Position;
+    gl_Position = projection * view * vec4(modelFragPosition, 1.0f);
+    //gl_Position = vec4(modelFragPosition / 100, 1.0f);
 }
