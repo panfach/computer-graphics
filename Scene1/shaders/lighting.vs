@@ -15,6 +15,7 @@ out vec3 cameraPos; //////////
 out vec3 tangentCameraPos; /////////
 out vec2 texCoords;
 out vec4 lightFragPosition;
+out vec4 screenFragPos;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -43,6 +44,7 @@ void main()
     fragPosition = modelFragPosition;
     lightFragPosition = lightViewProjection * vec4(modelFragPosition, 1.0f);
 
+
     mat3 model0 = transpose(inverse(mat3(model)));
     vec3 T = normalize(model0 * _tangent);
     vec3 N = normalize(model0 * _normal);
@@ -53,4 +55,5 @@ void main()
     tangentFragPosition = TBN * modelFragPosition;
 
     gl_Position = projection * view * model * vec4(_position, 1.0f);
+    screenFragPos = gl_Position;
 }

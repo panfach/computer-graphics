@@ -21,6 +21,7 @@ bool rightMouseFlag, firstMouseCallback = true;
 GLfloat lastMouseX = 400, lastMouseY = 300, deltaTime = 0.0f, lastFrame = 0.0f;
 Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
 
+void DisplayTexture(Shader shader, Mesh screen, const string textureVar, unsigned int texture);
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void MouseButtonCallback(GLFWwindow* window, int key, int action, int mode);
@@ -143,13 +144,13 @@ int main() {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameTexture, 0);
 
 	//Инициализация рендер буфера для frameTextureFB
-	/*unsigned int RB;
+	unsigned int RB;
 	glGenRenderbuffers(1, &RB);
 	glBindRenderbuffer(GL_RENDERBUFFER, RB);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
@@ -157,9 +158,9 @@ int main() {
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		cout << "Error: renderbuffer is not complete!" << endl;
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);*/
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	// Инициализация кадрового буфера и текстуры для теней относительно камеры
+	/*// Инициализация кадрового буфера и текстуры для теней относительно камеры
 	unsigned int shadowMapFB, shadowMap;
 	glGenFramebuffers(1, &shadowMapFB);
 	glGenTextures(1, &shadowMap);
@@ -173,12 +174,31 @@ int main() {
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, shadowMap, 0);
 	//glDrawBuffer(GL_NONE);
 	//glReadBuffer(GL_NONE);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
+
+	// Инициализация кадрового буфера и текстуры для теней относительно камеры
+	// Для размытия создаются два буфера
+	unsigned int shadowMapFB[2], shadowMap[2];
+	glGenFramebuffers(2, shadowMapFB);
+	glGenTextures(2, shadowMap);
+	for (int i = 0; i < 2; i++)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB[i]);
+		glBindTexture(GL_TEXTURE_2D, shadowMap[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, shadowMap[i], 0);
+	}
 
 	unsigned int RB0;
 	glGenRenderbuffers(1, &RB0);
 	glBindRenderbuffer(GL_RENDERBUFFER, RB0);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB[0]);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RB0);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		cout << "Error: renderbuffer is not complete!" << endl;
@@ -204,7 +224,7 @@ int main() {
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// Создание прямоугольника, на который будет натягиваться итоговая текстура
-	Mesh screenQuad(shadowMap);
+	Mesh screenQuad(shadowMap[0]);
 
 	// Using key callbacks
 	glfwSetKeyCallback(window, KeyCallback);
@@ -230,6 +250,8 @@ int main() {
 		//lightPosition.z = 3.0f;
 		//lightPosition.y = 4.0f;
 		//lightPosition.x = (sin(0.6f * (GLfloat)glfwGetTime())) * 10.0f;
+		//lightDiffuse.y = 0.0f;
+		//lightDiffuse.z = 0.0f;
 		glm::vec3 lightDir = glm::normalize(-lightPosition);
 
 
@@ -279,7 +301,7 @@ int main() {
 
 
 
-		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB);
+		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB[0]);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shadowShader.Use();
 		shadowShader.SetInt("lightShadowMap", 10);
@@ -322,33 +344,23 @@ int main() {
 		mesh_bricks.Draw(shadowShader);
 
 
-
-
-
-
+		// Размытие тестуры теней
+		bool horizontal = true;
+		int iterations = 10;
+		for (int i = 0; i < iterations; i++) {
+			glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB[horizontal]);
+			gaussShader.SetInt("horizontal", horizontal);
+			DisplayTexture(gaussShader, screenQuad, "tex", shadowMap[!horizontal]);
+			horizontal = !horizontal;
+		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glDisable(GL_DEPTH_TEST);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		gaussShader.Use();
-		gaussShader.SetInt("tex", 11);
-		glActiveTexture(GL_TEXTURE11);
-		glBindTexture(GL_TEXTURE_2D, shadowMap);
+
+
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//DisplayTexture(gaussShader, screenQuad, "tex", shadowMap[0]);
+
+
 		
-
-		glBindVertexArray(screenQuad.VAO);
-		glDrawElements(GL_TRIANGLES, (GLsizei)screenQuad.indices.size(), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glActiveTexture(GL_TEXTURE0);
-
-		//screenQuad.Draw(gaussShader);
-		glEnable(GL_DEPTH_TEST);
-
-
-
-
-		/*
 		// Вторая отрисовка
 		glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -359,7 +371,7 @@ int main() {
 		lightingShader.SetVec3("lightDirection", lightDir);
 		lightingShader.SetInt("shadowMap", 10);
 		glActiveTexture(GL_TEXTURE10);
-		glBindTexture(GL_TEXTURE_2D, lightShadowMap);
+		glBindTexture(GL_TEXTURE_2D, shadowMap[0]);
 		                    
 		view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
 		projection = glm::perspective<float>(glm::radians(camera.fov), (float)screenWidth / screenHeight, 0.1f, 20.0f);
@@ -397,10 +409,9 @@ int main() {
 		model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		//model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		lightingShader.SetMat4("model", model);
-		mesh_bricks.Draw(lightingShader);  */
+		mesh_bricks.Draw(lightingShader);  
 
-
-		/*
+		
 		// Отрисовка Skybox
 		skyboxShader.Use();
 		glDepthFunc(GL_LEQUAL);
@@ -408,8 +419,11 @@ int main() {
 		skyboxShader.SetMat4("view", view);
 		skyboxShader.SetMat4("projection", projection);
 		skybox.Draw(skyboxShader);
-		glDepthFunc(GL_LESS);   */
+		glDepthFunc(GL_LESS);
 		 
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		DisplayTexture(postShader, screenQuad, "frameTexture", frameTexture);
 
 		/*
 		// Отрисовка итогового изображения
@@ -447,6 +461,23 @@ int main() {
 }
 
 // --------------------------------------------------------------------------------------------------------------------------- //
+
+void DisplayTexture(Shader shader, Mesh screen, const string textureVar, unsigned int texture) {
+	glDisable(GL_DEPTH_TEST);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	shader.Use();
+	shader.SetInt(textureVar.c_str(), 11);
+	glActiveTexture(GL_TEXTURE11);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindVertexArray(screen.VAO);
+	glDrawElements(GL_TRIANGLES, (GLsizei)screen.indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glActiveTexture(GL_TEXTURE0);
+	glEnable(GL_DEPTH_TEST);
+}
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
 

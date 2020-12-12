@@ -23,6 +23,7 @@ in vec3 cameraPos;
 in vec3 tangentCameraPos;
 in vec2 texCoords;
 in vec4 lightFragPosition;
+in vec4 screenFragPos;
 
 out vec4 color;
 
@@ -37,7 +38,7 @@ uniform int hasNormalMap;
 
 void main()
 {
-    float diff, spec;
+    float diff, spec, shadow;
     vec3 norm, viewDir, reflectDir;
 
     float specularStrength = 1.0f;
@@ -75,7 +76,7 @@ void main()
         }
     }
 
-    vec3 projCoords = lightFragPosition.xyz / lightFragPosition.w;
+    /*vec3 projCoords = lightFragPosition.xyz / lightFragPosition.w;
     projCoords = projCoords * 0.5f + 0.5f;
     float closestDepth = texture(shadowMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
@@ -87,7 +88,14 @@ void main()
             float _depth = texture(shadowMap, projCoords.xy + vec2(i, j) * texelSize).r;
             shadow += (currentDepth - 0.005f > _depth) ? 0.111f : 0.0f;
         }
-    }
+    }*/
+    
+    vec3 projC = screenFragPos.xyz / screenFragPos.w;
+    projC = projC * 0.5f + 0.5f;
+    shadow = 1.0f - texture(shadowMap, projC.xy).r;
+    //if (screenFragCoord.x > 0) shadow = 1.0f; else shadow = 0.0f;
+    //shadow = screenFragCoord.y;
+    //shadow = 0.0f;
 
     //if (diff < 0.2f) diff = 0.0f;
     //else if (diff < 0.5) diff = 0.4f;
@@ -102,7 +110,6 @@ void main()
 
 
 
-    color = vec4(result, gl_FragCoord.z);
-    //color = vec4(vec3(1.0f - gl_FragCoord.z), 1.0f);
-    //gl_FragColor = vec4(1.0f);
+    color = vec4(result, gl_FragCoord.z); /////
+    //color = vec4(vec3(shadow), 1.0f);
 }

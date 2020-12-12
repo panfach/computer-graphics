@@ -73,6 +73,6 @@ void main()
 
 
     //color = vec4(result, 1.0f);
-    //color = vec4(texture(frameTexture, texCoord.st), 1.0f);
-    color = vec4(1.0f);
+    color = vec4(vec3(texture(frameTexture, texCoord.st)), 1.0f);
+    //color = vec4(1.0f);
 }
