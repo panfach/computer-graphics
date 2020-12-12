@@ -121,7 +121,7 @@ int main() {
 
 	// Инициализация кадрового буфера и текстуры для теней относительно света
 	unsigned int lightShadowMapFB, lightShadowMap;
-	const unsigned int shadowTextureWidth = 4096, shadowTextureHeight = 4096;
+	const unsigned int shadowTextureWidth = 2048, shadowTextureHeight = 2048;
 	glGenFramebuffers(1, &lightShadowMapFB);
 	glGenTextures(1, &lightShadowMap);
 	glBindTexture(GL_TEXTURE_2D, lightShadowMap);
@@ -423,6 +423,8 @@ int main() {
 		 
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		postShader.Use();
+		postShader.SetFloat("time", (float)glfwGetTime());
 		DisplayTexture(postShader, screenQuad, "frameTexture", frameTexture);
 
 		/*

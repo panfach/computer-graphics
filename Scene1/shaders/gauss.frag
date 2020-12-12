@@ -10,7 +10,6 @@ uniform bool horizontal;
 const float xTexSize = 1.0f / 1200;
 const float yTexSize = 1.0f / 800;
 float amount = 5;
-//const float weight[5] = float[] (0.227027f, 0.1945946f, 0.1216216f, 0.054054f, 0.016216f);
 float weight[14] = float[] (0.25f, 0.18f, 0.12f, 0.05f, 0.025f,
                            0.30f, 0.18f, 0.12f, 0.05f,
                            0.45f, 0.25f, 0.05f,
@@ -21,6 +20,7 @@ void main()
     int shiftIndex;
     float result = 0.0f;
     float depth = texture(tex, texCoords).w;
+
 
     if (depth >= 0.96f) { amount = 2; shiftIndex = 12; }
     else if (depth >= 0.93) { amount = 3; shiftIndex = 9; }

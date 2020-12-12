@@ -108,6 +108,10 @@ void main()
 
     vec3 result = ambient + (1.0f - shadow) * (diffuse + specular);
 
+    float fogStrength = gl_FragCoord.z * 60f - 59f;
+    if (fogStrength < 0.0f) fogStrength = 0.0f;
+    result = mix(result, vec3(0.282f, 0.314f, 0.325f), fogStrength);
+
 
 
     color = vec4(result, gl_FragCoord.z); /////
