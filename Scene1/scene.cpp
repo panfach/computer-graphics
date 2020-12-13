@@ -19,6 +19,7 @@
 bool keys[1024];
 bool postEffectFlag = false, VDF = false;
 bool rightMouseFlag, firstMouseCallback = true;
+float focusValue;
 GLfloat lastMouseX = 400, lastMouseY = 300, deltaTime = 0.0f, lastFrame = 0.0f;
 Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
 
@@ -26,6 +27,7 @@ void DisplayTexture(Shader shader, Mesh screen, const string textureVar, unsigne
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void MouseButtonCallback(GLFWwindow* window, int key, int action, int mode);
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void Move();
 void Zoom();
 
@@ -138,7 +140,7 @@ int main() {
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Инициализация кадрового буфера для изображения перед пост обработкой
-	unsigned int frameTextureFB, frameTexture;
+	/*unsigned int frameTextureFB, frameTexture;
 	glGenFramebuffers(1, &frameTextureFB);
 	glGenTextures(1, &frameTexture);
 	glBindTexture(GL_TEXTURE_2D, frameTexture);
@@ -148,13 +150,31 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameTexture, 0);*/
+
+	// Инициализация кадрового буфера для изображения перед пост обработкой
+	unsigned int frameTextureFB[2], frameTexture[2];
+	glGenFramebuffers(2, frameTextureFB);
+	glGenTextures(2, frameTexture);
+	for (int i = 0; i < 2; i++)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB[i]);
+		glBindTexture(GL_TEXTURE_2D, frameTexture[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameTexture[i], 0);
+	}
 
 	//Инициализация рендер буфера для frameTextureFB
 	unsigned int RB;
 	glGenRenderbuffers(1, &RB);
 	glBindRenderbuffer(GL_RENDERBUFFER, RB);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB[0]);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RB);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		cout << "Error: renderbuffer is not complete!" << endl;
@@ -195,32 +215,46 @@ int main() {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, shadowMap[i], 0);
 	}
 
-	unsigned int RB0;
-	glGenRenderbuffers(1, &RB0);
-	glBindRenderbuffer(GL_RENDERBUFFER, RB0);
+	// Рендер буфер для карты теней
+	unsigned int shadowRB;
+	glGenRenderbuffers(1, &shadowRB);
+	glBindRenderbuffer(GL_RENDERBUFFER, shadowRB);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB[0]);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RB0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, shadowRB);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		cout << "Error: renderbuffer is not complete!" << endl;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	// Кадровый буфер для размытой карты теней
-	unsigned int blurShadowMapFB, blurShadowMap;
-	glGenFramebuffers(1, &blurShadowMapFB);
-	glGenTextures(1, &blurShadowMap);
-	glBindTexture(GL_TEXTURE_2D, blurShadowMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, screenWidth, screenHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_LINEAR);
-	glBindFramebuffer(GL_FRAMEBUFFER, blurShadowMapFB);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, blurShadowMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
+	/*// Инициализация кадрового буфера и текстуры для размытия итогового изображения (Глубина резкости)
+	unsigned int depthFieldFB[2], depthFieldTexture[2];
+	glGenFramebuffers(2, depthFieldFB);
+	glGenTextures(2, depthFieldTexture);
+	for (int i = 0; i < 2; i++)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, depthFieldFB[i]);
+		glBindTexture(GL_TEXTURE_2D, depthFieldTexture[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthFieldFB[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, depthFieldTexture[i], 0);
+	}
+
+	// Рендер буфер для итогового изображения с глубиной резкости
+	unsigned int depthFieldRB;
+	glGenRenderbuffers(1, &depthFieldRB);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthFieldRB);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthFieldFB[0]);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthFieldRB);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		cout << "Error: renderbuffer is not complete!" << endl;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);*/
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -230,6 +264,7 @@ int main() {
 	// Using key callbacks
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetMouseButtonCallback(window, MouseButtonCallback);
+	glfwSetScrollCallback(window, ScrollCallback);
 	glfwSetCursorPosCallback(window, MouseCallback);
 
 	// --------------------------------------------------------------------------------------------------------------------------- //
@@ -348,6 +383,8 @@ int main() {
 		// Размытие тестуры теней
 		bool horizontal = true;
 		int iterations = 10;
+		gaussShader.Use();
+		gaussShader.SetInt("depthCheck", false);
 		for (int i = 0; i < iterations; i++) {
 			glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB[horizontal]);
 			gaussShader.SetInt("horizontal", horizontal);
@@ -363,7 +400,7 @@ int main() {
 
 		
 		// Вторая отрисовка
-		glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB[0]);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		lightingShader.Use();
 		lightingShader.SetVec3("light.ambient", lightAmbient);
@@ -423,31 +460,44 @@ int main() {
 		glDepthFunc(GL_LESS);
 		 
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		postShader.Use();
-		postShader.SetInt("floatEffect", postEffectFlag);
-		postShader.SetFloat("time", (float)glfwGetTime());
-		DisplayTexture(postShader, screenQuad, "frameTexture", frameTexture);
+		// Либо
+		if (!VDF) {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			postShader.Use();
+			postShader.SetInt("floatEffect", postEffectFlag);
+			postShader.SetFloat("time", (float)glfwGetTime());
+			DisplayTexture(postShader, screenQuad, "frameTexture", frameTexture[0]);
+		}
+		else {
+			glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB[1]);
+			postShader.Use();
+			postShader.SetInt("floatEffect", postEffectFlag);
+			postShader.SetFloat("time", (float)glfwGetTime());
+			DisplayTexture(postShader, screenQuad, "frameTexture", frameTexture[0]);
 
-		/*
-		// Отрисовка итогового изображения
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glDisable(GL_DEPTH_TEST);
-		glClear(GL_COLOR_BUFFER_BIT);
-		postShader.Use();
-		screenQuad.Draw(postShader);
-		glEnable(GL_DEPTH_TEST);
-		*/
+			// Размытие
+			bool horizontal = false;
+			int iterations = 10;
+			gaussShader.Use();
+			gaussShader.SetInt("depthCheck", true);
+			gaussShader.SetFloat("focus", focusValue);
+			for (int i = 1; i < iterations; i++) {
+				glBindFramebuffer(GL_FRAMEBUFFER, (i == iterations - 1) ? 0 : frameTextureFB[horizontal]);
+				gaussShader.SetInt("horizontal", horizontal);
+				DisplayTexture(gaussShader, screenQuad, "tex", frameTexture[!horizontal]);
+				horizontal = !horizontal;
+			}
+		}
 
 
 		glfwSwapBuffers(window);
 
-		// Calculation Delta Time
+		// Вычисление Delta Time
 		GLfloat currentFrame = (GLfloat)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		// FPS Counter
+		// Счетчик FPS
 		currSecond = glfwGetTime();
 		frameCount++;
 		if (currSecond - prevSecond >= 1.0) {
@@ -489,6 +539,8 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	if (key == GLFW_KEY_1 && action == GLFW_PRESS)
 		postEffectFlag = !postEffectFlag;
+	if (key == GLFW_KEY_2 && action == GLFW_PRESS)
+		VDF = !VDF;
 
 	if (action == GLFW_PRESS)
 		keys[key] = true;
@@ -502,6 +554,14 @@ void MouseButtonCallback(GLFWwindow* window, int key, int action, int mode) {
 			rightMouseFlag = true;
 		else
 			rightMouseFlag = false;
+	}
+}
+
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+	if (VDF) {
+		focusValue += 0.04f * yoffset;
+		if (focusValue < 0.0f) focusValue = 0.0f;
+		if (focusValue > 0.99f) focusValue = 0.99f;
 	}
 }
 

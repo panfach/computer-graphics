@@ -37,7 +37,8 @@ const vec2 offsets[9] = vec2[](
 
 void main()
 { 
-    vec3 result;
+    vec4 result;
+    //float depth = texture(frameTexture, texCoord.st).w
 
     /*float focus = 0.4f;
     float blurStrength = texture(frameTexture, texCoord).a * 5.0f - 4.0f;
@@ -49,7 +50,7 @@ void main()
         1.0f * blurStrength / 16.0f, 2.0f * blurStrength / 16.0f, 1.0f * blurStrength / 16.0f
     );
 
-    vec3 result = vec3(0.0f);
+    vec3 result = vec3(0.0f, texture(frameTexture, texCoord.st).w);
     vec3 colors[9];
     for (int i = 0; i < 9; i++) {
         colors[i] = vec3(texture(frameTexture, texCoord.st + offsets[i]));
@@ -66,14 +67,14 @@ void main()
         vec2 resultTexCoord = texCoord.st + offset;
         if (resultTexCoord.x < 0) resultTexCoord.x = 0;
         if (resultTexCoord.x > 1199) resultTexCoord.x = 1199;
-        result = vec3(texture(frameTexture, texCoord.st + offset));
+        result = texture(frameTexture, texCoord.st + offset);
     }
     else {
-        result = vec3(texture(frameTexture, texCoord.st));
+        result = texture(frameTexture, texCoord.st);
     }
 
 
-    color = vec4(result, result.z);
+    color = vec4(result);
     //color = vec4(vec3(texture(frameTexture, texCoord.st)), 1.0f);
     //color = vec4(1.0f);
 }

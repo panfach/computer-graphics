@@ -113,7 +113,8 @@ void main()
     result = mix(result, vec3(0.282f, 0.314f, 0.325f), fogStrength);
 
 
-
-    color = vec4(result, gl_FragCoord.z); /////
+    float depth = gl_FragCoord.z;
+    depth = 1.0f - depth;
+    color = vec4(result, depth); /////
     //color = vec4(vec3(shadow), 1.0f);
 }
