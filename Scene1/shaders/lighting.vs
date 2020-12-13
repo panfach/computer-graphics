@@ -8,41 +8,32 @@ layout (location = 4) in vec3 _bitangent;
 
 out vec3 normal;
 out vec3 fragPosition;
-out vec3 tangentFragPosition; //////
+out vec3 tangentFragPosition; 
 out vec3 lightDir;
-out vec3 tangentLightDir;  //////////
-out vec3 cameraPos; //////////
-out vec3 tangentCameraPos; /////////
+out vec3 tangentLightDir;  
+out vec3 cameraPos; 
+out vec3 tangentCameraPos; 
 out vec2 texCoords;
-out vec4 lightFragPosition;
 out vec4 screenFragPos;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform mat3 tangentMatrix; //////////
+uniform mat3 tangentMatrix; 
 uniform vec3 lightDirection;
 uniform mat4 lightViewProjection;
-uniform vec3 cameraPosition; //////
+uniform vec3 cameraPosition; 
 
 void main()
 {
-    /*texCoords = _texCoords;
-    normal = mat3(transpose(inverse(view * model))) * _normal;
-    gl_Position = projection * view * model * vec4(_position, 1.0f);
-    lightDir = mat3(transpose(inverse(view))) * lightDirection;
-    vec3 modelFragPosition = vec3(model * vec4(_position, 1.0f));
-    fragPosition = vec3(view * vec4(modelFragPosition, 1.0f));
-    lightFragPosition = lightViewProjection * vec4(modelFragPosition, 1.0f);*/
 
     texCoords = _texCoords;
-    normal = normalize(mat3(transpose(inverse(model))) * _normal);
+    normal = normalize(mat3(transpose(inverse(model))) * _normal);                    // Трансформация в мировые координаты без перемещения
     lightDir = lightDirection;
     cameraPos = cameraPosition;
     tangentLightDir = lightDirection;
     vec3 modelFragPosition = vec3(model * vec4(_position, 1.0f));
     fragPosition = modelFragPosition;
-    lightFragPosition = lightViewProjection * vec4(modelFragPosition, 1.0f);
 
 
     mat3 model0 = transpose(inverse(mat3(model)));

@@ -91,7 +91,7 @@ public:
 
     void SetInt(const char* variableName, int value) {
         GLint loc = glGetUniformLocation(_program, variableName);
-        glUniform1i(loc, value); //////////
+        glUniform1i(loc, value); 
     }
 
     void SetFloat(const char* variableName, float value) {

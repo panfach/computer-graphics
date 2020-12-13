@@ -6,7 +6,5 @@ out vec4 color;
 
 void main()
 {
-   float value = fragCoord.z;
-
-   color = vec4(value);
+   color = vec4(fragCoord.z, vec3(0.0f));
 }

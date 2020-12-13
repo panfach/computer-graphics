@@ -39,9 +39,6 @@ int main() {
 	int frameCount = 0;
 	const float nearPlane = 1.0f, farPlane = 20.0f;
 	double currSecond, prevSecond = glfwGetTime();
-	GLuint modelLoc;
-	GLuint viewLoc;
-	GLuint projectionLoc;
 	glm::mat4 model, view, projection, tangent;
 	glm::mat4 lightProjection, lightView, lightViewProjection;
 
@@ -56,7 +53,6 @@ int main() {
 	};
 
 	// Основной параллельный источник освещения
-	//glm::vec3 lightPosition(-3.6f, 2.5f, -2.5f);
 	glm::vec3 lightPosition(-3.6f, 2.5f, 2.5f);
 	glm::vec3 lightAmbient(0.1f, 0.1f, 0.1f);
 	glm::vec3 lightDiffuse(1.0f, 0.8f, 0.6f);
@@ -98,7 +94,7 @@ int main() {
 
 	// ВКЛЮЧЕНИЕ DEPTH TEST
 	glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_GREATER);
+	//glDepthFunc(GL_LESS);
 
 
 	// Шейдеры
@@ -113,14 +109,21 @@ int main() {
 
 
 	// Загрузка всех моделей
-	//Mesh mesh_bricks(PLANE, )
-	Texture meshTextures[] = { Texture(DIFFUSE, "textures/bricks.jpg"), Texture(NORMAL, "textures/bricks_normal.jpg") };
-	//Texture meshTextures[] = { Texture(NORMAL, "textures/bricks_normal.jpg"), Texture(DIFFUSE, "textures/bricks.jpg") };
-	Mesh mesh_bricks(PLANE, 2, meshTextures);
+	Texture meshTextures1[] = { Texture(DIFFUSE, "textures/bricks.jpg"), Texture(NORMAL, "textures/bricks_normal.jpg"), Texture(SPECULAR, "textures/bricks_specular.jpg") };
+	Mesh mesh_bricks(PLANE, 3, meshTextures1);
+
+	Texture meshTextures2[] = { Texture(DIFFUSE, "textures/wood_plane_diffuse_1.jpg"), Texture(NORMAL, "textures/wood_plane_normal_1.jpg"), Texture(SPECULAR, "textures/wood_plane_specular_1.jpg") };
+	Mesh mesh_woodplane(PLANE, 3, meshTextures2);
+
 	Model model_shrek("models/CHARACTER_Shrek.obj");
+
+	Model model_totoro("models/totoronico.obj");
+
 	Model model_ground("models/10450_Rectangular_Grass_Patch_v1_iterations-2.obj"); 
 	model_ground.meshes[0].hasNormal = false;
+
 	CubeMap skybox(skyboxFaces);
+
 
 	// Инициализация кадрового буфера и текстуры для теней относительно света
 	unsigned int lightShadowMapFB, lightShadowMap;
@@ -139,20 +142,7 @@ int main() {
 	glReadBuffer(GL_NONE);
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	// Инициализация кадрового буфера для изображения перед пост обработкой
-	/*unsigned int frameTextureFB, frameTexture;
-	glGenFramebuffers(1, &frameTextureFB);
-	glGenTextures(1, &frameTexture);
-	glBindTexture(GL_TEXTURE_2D, frameTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameTexture, 0);*/
-
-	// Инициализация кадрового буфера для изображения перед пост обработкой
+	// Инициализация кадрового буфера для изображения перед пост обработкой (Для размытий создается два буфера)
 	unsigned int frameTextureFB[2], frameTexture[2];
 	glGenFramebuffers(2, frameTextureFB);
 	glGenTextures(2, frameTexture);
@@ -178,24 +168,7 @@ int main() {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RB);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		cout << "Error: renderbuffer is not complete!" << endl;
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-	/*// Инициализация кадрового буфера и текстуры для теней относительно камеры
-	unsigned int shadowMapFB, shadowMap;
-	glGenFramebuffers(1, &shadowMapFB);
-	glGenTextures(1, &shadowMap);
-	glBindTexture(GL_TEXTURE_2D, shadowMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, shadowMap, 0);
-	//glDrawBuffer(GL_NONE);
-	//glReadBuffer(GL_NONE);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
 
 	// Инициализация кадрового буфера и текстуры для теней относительно камеры
 	// Для размытия создаются два буфера
@@ -227,38 +200,9 @@ int main() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	/*// Инициализация кадрового буфера и текстуры для размытия итогового изображения (Глубина резкости)
-	unsigned int depthFieldFB[2], depthFieldTexture[2];
-	glGenFramebuffers(2, depthFieldFB);
-	glGenTextures(2, depthFieldTexture);
-	for (int i = 0; i < 2; i++)
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, depthFieldFB[i]);
-		glBindTexture(GL_TEXTURE_2D, depthFieldTexture[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthFieldFB[i]);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, depthFieldTexture[i], 0);
-	}
 
-	// Рендер буфер для итогового изображения с глубиной резкости
-	unsigned int depthFieldRB;
-	glGenRenderbuffers(1, &depthFieldRB);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthFieldRB);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
-	glBindFramebuffer(GL_FRAMEBUFFER, depthFieldFB[0]);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthFieldRB);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		cout << "Error: renderbuffer is not complete!" << endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);*/
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	// Создание прямоугольника, на который будет натягиваться итоговая текстура
+	// Создание прямоугольника, на который будет натягиваться текстура
 	Mesh screenQuad(shadowMap[0]);
 
 	// Using key callbacks
@@ -291,10 +235,10 @@ int main() {
 		glm::vec3 lightDir = glm::normalize(-lightPosition);
 
 
-		// Первая отрисовка: Получение буфера глубины для теней
+		// Первая отрисовка: Получение буфера глубины для теней относительно источника света
 		lightShadowShader.Use();
 		lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, nearPlane, farPlane);
-		lightView = glm::lookAt(lightPosition, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		lightView = glm::lookAt(2.0f * lightPosition, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		lightViewProjection = lightProjection * lightView;
 		lightShadowShader.SetMat4("lightViewProjection", lightViewProjection);
 		glViewport(0, 0, shadowTextureWidth, shadowTextureHeight);
@@ -303,12 +247,26 @@ int main() {
 		glActiveTexture(GL_TEXTURE0);
 		
 		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(1.0f, 0.1f, -1.6f));
+		model = glm::rotate(model, (glm::radians)(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		lightShadowShader.SetMat4("model", model);
 		model_shrek.Draw(lightShadowShader);
 
 		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(-2.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, (glm::radians)(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.05f, -2.5f));
+		model = glm::scale(model, glm::vec3(0.05f));
+		lightShadowShader.SetMat4("model", model);
+		model_totoro.Draw(lightShadowShader);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(-1.0f, 0.1f, -1.6f));
+		model = glm::rotate(model, (glm::radians)(-30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		lightShadowShader.SetMat4("model", model);
+		model_shrek.Draw(lightShadowShader);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(-5.0f, 3.0f, 2.0f));
+		model = glm::rotate(model, 3.0f * (GLfloat)glfwGetTime(), glm::vec3(0.4f, 0.31f, 0.23f));
 		lightShadowShader.SetMat4("model", model);
 		model_shrek.Draw(lightShadowShader);
 
@@ -320,23 +278,26 @@ int main() {
 		model_ground.Draw(lightShadowShader);
 
 		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(0.0f, 1.0f, -0.5f));
+		model = glm::translate(model, glm::vec3(0.0f, 1.0f, -2.8f));
 		model = glm::scale(model, glm::vec3(3.0f));
 		model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		lightShadowShader.SetMat4("model", model);
 		mesh_bricks.Draw(lightShadowShader);
 
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(0.0f, 0.1f, -1.4f));
+		model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(3.0f, 1.0f, 4.5f));
+		lightShadowShader.SetMat4("model", model);
+		mesh_woodplane.Draw(lightShadowShader);
+
+
 
 		// Возврат к настройкам окна
 		glViewport(0, 0, screenWidth, screenHeight);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-
-
-
-
-
+		// Вторая отрисовка: Получение карты теней относительно камеры
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB[0]);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shadowShader.Use();
@@ -350,17 +311,27 @@ int main() {
 		shadowShader.SetMat4("projection", projection);
 		shadowShader.SetMat4("lightViewProjection", lightViewProjection);
 
-		//glDepthFunc(GL_GREATER);
-
 		model = glm::mat4();
-		//model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
-		//model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(1.0f, 0.1f, -1.6f));
+		model = glm::rotate(model, (glm::radians)(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		shadowShader.SetMat4("model", model);
 		model_shrek.Draw(shadowShader);
 
 		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(-2.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, (glm::radians)(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.05f, -2.5f));
+		model = glm::scale(model, glm::vec3(0.05f));
+		shadowShader.SetMat4("model", model);
+		model_totoro.Draw(shadowShader);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(-1.0f, 0.1f, -1.6f));
+		model = glm::rotate(model, (glm::radians)(-30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		shadowShader.SetMat4("model", model);
+		model_shrek.Draw(shadowShader);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(-5.0f, 3.0f, 2.0f));
+		model = glm::rotate(model, 3.0f * (GLfloat)glfwGetTime(), glm::vec3(0.4f, 0.31f, 0.23f));
 		shadowShader.SetMat4("model", model);
 		model_shrek.Draw(shadowShader);
 
@@ -372,12 +343,19 @@ int main() {
 		model_ground.Draw(shadowShader);
 
 		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(0.0f, 1.0f, -0.5f));
+		model = glm::translate(model, glm::vec3(0.0f, 1.0f, -2.8f));
 		model = glm::scale(model, glm::vec3(3.0f));
 		model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		//model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		shadowShader.SetMat4("model", model);
 		mesh_bricks.Draw(shadowShader);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(0.0f, 0.1f, -1.4f));
+		model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(3.0f, 1.0f, 4.5f));
+		shadowShader.SetMat4("model", model);
+		mesh_woodplane.Draw(shadowShader);
+
 
 
 		// Размытие тестуры теней
@@ -394,12 +372,8 @@ int main() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		//DisplayTexture(gaussShader, screenQuad, "tex", shadowMap[0]);
-
-
 		
-		// Вторая отрисовка
+		// Третья отрисовка сцены с тенями
 		glBindFramebuffer(GL_FRAMEBUFFER, frameTextureFB[0]);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		lightingShader.Use();
@@ -420,17 +394,28 @@ int main() {
 		lightingShader.SetMat4("lightViewProjection", lightViewProjection);
 		lightingShader.SetVec3("cameraPosition", camera.position);
 		lightingShader.SetMat4("tangentMatrix", tangent);
-
 		
 		model = glm::mat4();
-		//model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
-		//model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(1.0f, 0.1f, -1.6f));
+		model = glm::rotate(model, (glm::radians)(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		lightingShader.SetMat4("model", model);
 		model_shrek.Draw(lightingShader);
 
 		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(-2.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, (glm::radians)(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.05f, -2.5f));
+		model = glm::scale(model, glm::vec3(0.05f));
+		lightingShader.SetMat4("model", model);
+		model_totoro.Draw(lightingShader);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(-1.0f, 0.1f, -1.6f));
+		model = glm::rotate(model, (glm::radians)(-30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		lightingShader.SetMat4("model", model);
+		model_shrek.Draw(lightingShader);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(-5.0f, 3.0f, 2.0f));
+		model = glm::rotate(model, 3.0f * (GLfloat)glfwGetTime(), glm::vec3(0.4f, 0.31f, 0.23f));
 		lightingShader.SetMat4("model", model);
 		model_shrek.Draw(lightingShader);
 
@@ -438,18 +423,24 @@ int main() {
 		model = glm::translate(model, glm::vec3(0.0f, -0.14f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.02f));
 		model = glm::rotate(model, (glm::radians)(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		lightingShader.SetInt("hasSpecMap", false);
 		lightingShader.SetMat4("model", model);
 		model_ground.Draw(lightingShader);
 
 		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(0.0f, 1.0f, -0.5f));
+		model = glm::translate(model, glm::vec3(0.0f, 1.0f, -2.8f));
 		model = glm::scale(model, glm::vec3(3.0f));
 		model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		//model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		lightingShader.SetMat4("model", model);
 		mesh_bricks.Draw(lightingShader);  
 
-		
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(0.0f, 0.1f, -1.4f));
+		model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(3.0f, 1.0f, 4.5f));
+		lightingShader.SetMat4("model", model);
+		mesh_woodplane.Draw(lightingShader);
+
 		// Отрисовка Skybox
 		skyboxShader.Use();
 		glDepthFunc(GL_LEQUAL);
@@ -460,7 +451,9 @@ int main() {
 		glDepthFunc(GL_LESS);
 		 
 
-		// Либо
+
+		// VDF - Флаг эффекта переменной глубины резкости
+		// Либо итоговая отрисовка текстуры с постэффектом, либо отрисовка с глубиной резкости и постэффектом
 		if (!VDF) {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			postShader.Use();
@@ -490,6 +483,7 @@ int main() {
 		}
 
 
+
 		glfwSwapBuffers(window);
 
 		// Вычисление Delta Time
@@ -515,6 +509,7 @@ int main() {
 }
 
 // --------------------------------------------------------------------------------------------------------------------------- //
+
 
 void DisplayTexture(Shader shader, Mesh screen, const string textureVar, unsigned int texture) {
 	glDisable(GL_DEPTH_TEST);
@@ -559,7 +554,7 @@ void MouseButtonCallback(GLFWwindow* window, int key, int action, int mode) {
 
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	if (VDF) {
-		focusValue += 0.04f * yoffset;
+		focusValue += 0.015f * (float)yoffset;
 		if (focusValue < 0.0f) focusValue = 0.0f;
 		if (focusValue > 0.99f) focusValue = 0.99f;
 	}

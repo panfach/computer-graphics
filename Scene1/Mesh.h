@@ -34,14 +34,6 @@ struct Vertex {
     glm::vec3 tangent;
     glm::vec3 bitangent;
 
-    /*Vertex() {
-        pos = glm::vec3(0.0f);
-        normal = glm::vec3(0.0f, 1.0f, 0.0f);
-        texCoord = glm::vec2(0.0f);
-        tangent = glm::vec3(1.0f, 0.0f, 0.0f);
-        bitangent = glm::vec3(0.0f, 0.0f, 1.0f);
-    }*/
-
     Vertex() {
         pos = glm::vec3(0.0f);
         normal = glm::vec3(0.0f);
@@ -98,10 +90,10 @@ static GLfloat planeVertices[] = {
 // Плоскость из четырех вершин, повернутая по другому
 static GLfloat planeVertices2[] = {
     // Координаты         // Нормали          // Текстура   // Касательные
-    0.5f,  0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
-    0.5f,  -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
-   -0.5f,  -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
-   -0.5f,  0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f
+    1.0f,  1.0f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+    1.0f,  -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+   -1.0f,  -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+   -1.0f,  1.0f,  0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f
 };
 
 static GLuint defaultIndices[] = { 0, 1, 3, 1, 2, 3 };
@@ -144,7 +136,7 @@ public:
             for (int i = 0; i < textureAmount; i++) {
                 if (texture[i].type == NORMAL) {
                     hasNormal = true;
-                    cout << "This plane has normal map ..." << endl;
+                    cout << "Loading normal map ..." << endl;
                 }
                 textures.push_back(texture[i]);
             }
@@ -153,6 +145,7 @@ public:
         Init();
     }
 
+    // Создание прямоугольника с натянутой текстурой texture
     Mesh(unsigned int texture) {
         int size = 14;
         for (int i = 0; i < 4; i++) {
@@ -185,7 +178,6 @@ public:
         {
             
 			glActiveTexture(GL_TEXTURE0 + i);
-			// retrieve texture number (the N in diffuse_textureN)
 			string number;
 			string name;
 			TextureType type = textures[i].type;
@@ -207,16 +199,6 @@ public:
 				name = "heightTexture";
 				break;
 			}
-
-
-            //if (name == "texture_diffuse")
-            //    number = std::to_string(diffuseNr++);
-            //else if (name == "texture_specular")
-            //    number = std::to_string(specularNr++); // transfer unsigned int to stream
-            //else if (name == "texture_normal")
-            //    number = std::to_string(normalNr++); // transfer unsigned int to stream
-            //else if (name == "texture_height")
-            //    number = std::to_string(heightNr++); // transfer unsigned int to stream
 
 
             // Назначение uniform переменной в фрагментном шейдере
@@ -265,20 +247,22 @@ static unsigned int LoadTexture(const string filename, const string& directory) 
 
     unsigned int textureID;
     glGenTextures(1, &textureID);
-    cout << "Moedl.h LoadTextureFromFile() textureId = " << textureID << endl;
+    cout << "Loading texture " << filename << "; textureId = " << textureID << endl;
 
     unsigned char* data = SOIL_load_image(path.c_str(), &width, &height, &nrComponents, 0);
 
     if (data) {
+
         GLenum format;
         if (nrComponents == 1)
             format = GL_RED;
-        else if (nrComponents == 3)
+        else if (nrComponents == 3 || nrComponents == 2)
             format = GL_RGB;
         else // nrComponents == 4
             format = GL_RGBA;
 
         glBindTexture(GL_TEXTURE_2D, textureID);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Без этой строки иногда не работает следующая
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 

@@ -11,5 +11,6 @@ void main()
 {
     texCoords = _pos;
     vec4 pos = projection * view * vec4(_pos, 1.0);
-    gl_Position = pos.xyww;
+    gl_Position = pos.xyww;                                // Если будет xyzw , то из за теста глубины за единичным
+                                                           // кубом вокруг камеры не будут отрисовываться объекты
 }  

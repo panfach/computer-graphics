@@ -50,7 +50,7 @@ private:
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
             meshes.push_back(ProcessMesh(mesh, scene));
-            cout << "Model.h ProcessNode() mesh have " << meshes[0].textures.size() << " textures." << endl;
+            //cout << "Model.h ProcessNode() mesh have " << meshes[0].textures.size() << " textures." << endl;
         }
 
         // Рекурсивная обработка дочерних мешей
@@ -58,7 +58,7 @@ private:
             ProcessNode(node->mChildren[i], scene);
         }
 
-        cout << "Model.h ProcessNode() meshes.size = " << meshes.size() << endl;
+        //cout << "Model.h ProcessNode() meshes.size = " << meshes.size() << endl;
     }
 
 	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene) {
@@ -128,9 +128,6 @@ private:
         vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, NORMAL);
         if (normalMaps.size() > 0) hasNormal = true;
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-
-        vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, HEIGHT);
-        textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 		return Mesh(vertices, indices, textures, hasNormal);
 	}
