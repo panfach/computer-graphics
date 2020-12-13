@@ -17,6 +17,7 @@
 // --------------------------------------------------------------------------------------------------------------------------- //
 
 bool keys[1024];
+bool postEffectFlag = false, VDF = false;
 bool rightMouseFlag, firstMouseCallback = true;
 GLfloat lastMouseX = 400, lastMouseY = 300, deltaTime = 0.0f, lastFrame = 0.0f;
 Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
@@ -424,6 +425,7 @@ int main() {
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		postShader.Use();
+		postShader.SetInt("floatEffect", postEffectFlag);
 		postShader.SetFloat("time", (float)glfwGetTime());
 		DisplayTexture(postShader, screenQuad, "frameTexture", frameTexture);
 
@@ -485,6 +487,8 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
+	if (key == GLFW_KEY_1 && action == GLFW_PRESS)
+		postEffectFlag = !postEffectFlag;
 
 	if (action == GLFW_PRESS)
 		keys[key] = true;
