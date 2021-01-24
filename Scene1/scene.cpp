@@ -229,7 +229,7 @@ int main() {
 		//lightSpecular.z = (sin((GLfloat)glfwGetTime()) + 1) * 0.5f;
 		//lightPosition.z = 3.0f;
 		//lightPosition.y = 4.0f;
-		//lightPosition.x = (sin(0.6f * (GLfloat)glfwGetTime())) * 10.0f;
+		//lightPosition.x = (sin(0.6f * (GLfloat)glfwGetTime())) * 5.0f;
 		//lightDiffuse.y = 0.0f;
 		//lightDiffuse.z = 0.0f;
 		glm::vec3 lightDir = glm::normalize(-lightPosition);
@@ -431,6 +431,7 @@ int main() {
 		model = glm::translate(model, glm::vec3(0.0f, 1.0f, -2.8f));
 		model = glm::scale(model, glm::vec3(3.0f));
 		model = glm::rotate(model, (glm::radians)(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		//mesh_bricks.hasNormal = false;
 		lightingShader.SetMat4("model", model);
 		mesh_bricks.Draw(lightingShader);  
 

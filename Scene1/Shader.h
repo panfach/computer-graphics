@@ -22,11 +22,7 @@ public:
 		string fragmentCode;
 		ifstream vertexShaderFile;
 		ifstream fragmentShaderFile;
-
         id = 0;
-
-		vertexShaderFile.exceptions(ifstream::badbit);
-		fragmentShaderFile.exceptions(ifstream::badbit);
 
         try {
 
